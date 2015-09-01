@@ -2,5 +2,6 @@ flags: {}
 packages:
 - '.'
 - 'flowdock-rest-cli'
-extra-deps: []
+extra-deps:
+- file-embed-0.0.9
 resolver: lts-2.22
