@@ -1,0 +1,6 @@
+flags: {}
+packages:
+- '.'
+- 'flowdock-rest-cli'
+extra-deps: []
+resolver: lts-2.22

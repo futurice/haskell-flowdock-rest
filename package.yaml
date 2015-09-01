@@ -1,0 +1,41 @@
+name: flowdock-rest
+version: 0.0.0.0
+synopsis: Flowdock REST API, currently offering only non-destructive operations.
+description: Bindings to Flowdock REST api.
+author: Oleg Grenrus <oleg.grenrus@iki.fi>
+maintainer: Oleg Grenrus <oleg.grenrus@iki.fi>
+license: BSD3
+github: futurice/haskell-flowdock-rest
+category: Web
+tested-with: GHC==7.8.4, GHC==7.10.2
+extra-source-files:
+- README.md
+- fixtures/*.json
+
+ghc-options: -Wall
+
+dependencies:
+  - base >= 4.7 && <4.9
+  - aeson
+  - base64-bytestring
+  - bytestring
+  - deepseq
+  - exceptions
+  - hashable >= 1.2
+  - http-client
+  - http-client-tls
+  - lens
+  - text
+
+library:
+  source-dirs: src
+
+tests:
+  flowdock-rest-test:
+    main: Tests.hs
+    source-dirs: test
+    dependencies:
+      - flowdock-rest
+      - tasty
+      - tasty-quickcheck
+      - file-embed

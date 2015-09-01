@@ -1,0 +1,80 @@
+-- This file has been generated from package.yaml by hpack version 0.6.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           flowdock-rest
+version:        0.0.0.0
+synopsis:       Flowdock REST API, currently offering only non-destructive operations.
+description:    Bindings to Flowdock REST api.
+category:       Web
+homepage:       https://github.com/futurice/haskell-flowdock-rest#readme
+bug-reports:    https://github.com/futurice/haskell-flowdock-rest/issues
+author:         Oleg Grenrus <oleg.grenrus@iki.fi>
+maintainer:     Oleg Grenrus <oleg.grenrus@iki.fi>
+license:        BSD3
+tested-with:    GHC==7.8.4, GHC==7.10.2
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    fixtures/flows.json
+    fixtures/organisation-users.json
+    fixtures/organisation.json
+    fixtures/organisations.json
+    fixtures/users.json
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/futurice/haskell-flowdock-rest
+
+library
+  hs-source-dirs:
+      src
+  ghc-options: -Wall
+  build-depends:
+      base >= 4.7 && <4.9
+    , aeson
+    , base64-bytestring
+    , bytestring
+    , deepseq
+    , exceptions
+    , hashable >= 1.2
+    , http-client
+    , http-client-tls
+    , lens
+    , text
+  exposed-modules:
+      Chat.Flowdock.REST
+      Chat.Flowdock.REST.Auth
+      Chat.Flowdock.REST.Common
+      Chat.Flowdock.REST.Flow
+      Chat.Flowdock.REST.Internal
+      Chat.Flowdock.REST.Organisation
+      Chat.Flowdock.REST.URLs
+      Chat.Flowdock.REST.User
+  default-language: Haskell2010
+
+test-suite flowdock-rest-test
+  type: exitcode-stdio-1.0
+  main-is: Tests.hs
+  hs-source-dirs:
+      test
+  ghc-options: -Wall
+  build-depends:
+      base >= 4.7 && <4.9
+    , aeson
+    , base64-bytestring
+    , bytestring
+    , deepseq
+    , exceptions
+    , hashable >= 1.2
+    , http-client
+    , http-client-tls
+    , lens
+    , text
+    , flowdock-rest
+    , tasty
+    , tasty-quickcheck
+    , file-embed
+  default-language: Haskell2010

@@ -1,0 +1,43 @@
+[
+  {
+    "id": "deadbeefdeadbeef",
+    "name": "My flow",
+    "parameterized_name": "my-flow",
+    "organization": {
+      "id": 42,
+      "name": "Example",
+      "parameterized_name": "example",
+      "user_limit": 0,
+      "user_count": 10,
+      "active": true,
+      "url": "https://api.flowdock.com/organizations/example"
+    },
+    "unread_mentions": 0,
+    "open": true,
+    "joined": true,
+    "url": "https://api.flowdock.com/flows/acme/my-flow",
+    "web_url": "https://www.flowdock.com/app/acme/my-flow",
+    "join_url": "https://www.flowdock.com/invitations/eedd2bf0643f75c14be9099272429351c7132a71-my-flow",
+    "access_mode": "organization"
+  },
+  {
+    "id": "05654aa3-3b13-4a79-8cea-92ed45bdc9a5",
+    "name": "Another flow",
+    "parameterized_name": "another-flow",
+    "organization": {
+      "id": 8,
+      "name": "Acme",
+      "parameterized_name": "acme",
+      "user_limit": 0,
+      "user_count": 5,
+      "active": true,
+      "url": "https://api.flowdock.com/organizations/acme"
+    },
+    "unread_mentions": 0,
+    "open": true,
+    "joined": true,
+    "url": "https://api.flowdock.com/flows/acme/another-flow",
+    "web_url": "https://www.flowdock.com/app/acme/another-flow",
+    "access_mode": "invitation"
+  }
+]

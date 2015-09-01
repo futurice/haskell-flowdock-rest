@@ -1,0 +1,34 @@
+{
+  "id": 42,
+  "parameterized_name": "yup",
+  "name": "My company",
+  "user_limit": 80,
+  "user_count": 2,
+  "active": true,
+  "url": "https://api.flowdock.com/organizations/yup",
+  "subscription":
+  {
+    "trial": true,
+    "trial_ends": "2012-10-26"
+  },
+  "users": [
+    {
+      "id": 1,
+      "name": "John Smith",
+      "email": "john@example.com",
+      "nick": "john",
+      "avatar": "http://example.com/john.png",
+      "website": null,
+      "admin": true
+    },
+    {
+      "id": 42,
+      "name": "Stevie Johnson",
+      "email": "stevie@example.com",
+      "nick": "stevie",
+      "avatar": "http://example.com/stevie.png",
+      "website": "http://example.com",
+      "admin": false
+    }
+  ]
+}
