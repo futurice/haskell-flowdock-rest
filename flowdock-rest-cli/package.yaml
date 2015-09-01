@@ -1,6 +1,6 @@
 name: flowdock-rest-cli
 version: 0.0.0.0
-synopsis: Flowdock REST API, currently offering only non-destructive operations. Example cli tool.
+synopsis: Example cli tool for flowdock-rest
 description: Bindings to Flowdock REST api.
 author: Oleg Grenrus <oleg.grenrus@iki.fi>
 maintainer: Oleg Grenrus <oleg.grenrus@iki.fi>
