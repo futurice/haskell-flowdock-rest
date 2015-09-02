@@ -57,6 +57,7 @@ library
       Chat.Flowdock.REST.Message
       Chat.Flowdock.REST.Organisation
       Chat.Flowdock.REST.Pretty
+      Chat.Flowdock.REST.Request
       Chat.Flowdock.REST.URLs
       Chat.Flowdock.REST.User
   default-language: Haskell2010

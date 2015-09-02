@@ -1,6 +1,4 @@
 module Chat.Flowdock.REST.URLs (
-  -- * Request creation
-  parseApiUrl,
   -- * Flows
   -- | See <https://www.flowdock.com/api/flows>
   flowsUrl,
@@ -20,25 +18,14 @@ module Chat.Flowdock.REST.URLs (
   organisationUrl,
   ) where
 
-import Control.Monad.Catch
 import Data.List
 import Data.Monoid
-import Network.HTTP.Client
 
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.User
 import Chat.Flowdock.REST.Organisation
 import Chat.Flowdock.REST.Flow
 import Chat.Flowdock.REST.Message
-
--- | Convert a 'ApiUrl' into a 'Request'.
---
--- See 'Network.HTTP.Client.parseUrl'
---
--- Since this function uses 'MonadThrow', the return monad can be anything that is an instance of 'MonadThrow', such as 'IO' or 'Maybe'.
-parseApiUrl :: MonadThrow m => ApiUrl a -> m Request
-parseApiUrl (ApiUrl url) = parseUrl url
-
 
 apiBaseUrl :: String
 apiBaseUrl = "https://api.flowdock.com"

@@ -1,4 +1,10 @@
-module Chat.Flowdock.REST.Internal where
+module Chat.Flowdock.REST.Internal
+  ( ApiUrl(..)
+  , Identifier(..)
+  , ParamName(..)
+  , mkParamName
+  , FlowId, MessageId, UserId, OrganisationId
+  ) where
 
 import Control.Applicative
 import Control.DeepSeq
@@ -22,66 +28,38 @@ instance FromJSON (ApiUrl res) where
 instance Pretty (ApiUrl res) where
   pretty (ApiUrl url) = pretty url
 
+newtype Identifier a res = Identifier a
+  deriving (Eq, Ord, Show)
+
+instance NFData a => NFData (Identifier a res) where
+  rnf (Identifier x) = rnf x
+
+instance Hashable a => Hashable (Identifier a res) where
+  hashWithSalt salt (Identifier x) = hashWithSalt salt x
+
+instance FromJSON a => FromJSON (Identifier a res) where
+  parseJSON v = Identifier <$> parseJSON v
+
+instance Pretty a => Pretty (Identifier a res) where
+  pretty (Identifier a) = pretty a
+
+-- Non exported tags
+data Flow
+data Message
+data User
+data Organisation
 
 -- | Opaque Organisation identifier
-newtype FlowId = FlowId String
-  deriving (Eq, Ord, Show)
+type FlowId = Identifier String Flow
 
-instance NFData FlowId where
-  rnf (FlowId fid) = rnf fid
-
-instance Hashable FlowId where
-  hashWithSalt salt (FlowId fid) = hashWithSalt salt fid
-
-instance FromJSON FlowId where
-  parseJSON v = FlowId <$> parseJSON v
-
-
--- | Opaque Message identifier
-newtype MessageId = MessageId Integer
-  deriving (Eq, Ord, Show)
-
-instance NFData MessageId where
-  rnf (MessageId mid) = rnf mid
-
-instance Hashable MessageId where
-  hashWithSalt salt (MessageId mid) = hashWithSalt salt mid
-
-instance FromJSON MessageId where
-  parseJSON v = MessageId <$> parseJSON v
-
+-- | Opaque Message identifiert
+type MessageId = Identifier Integer Message
 
 -- | Opaque User identifier
-newtype UserId = UserId Integer
-  deriving (Eq, Ord, Show)
-
-instance NFData UserId where
-  rnf (UserId uid) = rnf uid
-
-instance Hashable UserId where
-  hashWithSalt salt (UserId uid) = hashWithSalt salt uid
-
-instance FromJSON UserId where
-  parseJSON v = UserId <$> parseJSON v
-
-instance Pretty UserId where
-  pretty (UserId uid) = pretty uid
+type UserId = Identifier Integer User
 
 -- | Opaque Organisation identifier
-newtype OrganisationId = OrganisationId Integer
-  deriving (Eq, Ord, Show)
-
-instance NFData OrganisationId where
-  rnf (OrganisationId oid) = rnf oid
-
-instance Hashable OrganisationId where
-  hashWithSalt salt (OrganisationId oid) = hashWithSalt salt oid
-
-instance FromJSON OrganisationId where
-  parseJSON v = OrganisationId <$> parseJSON v
-
-instance Pretty OrganisationId where
-  pretty (OrganisationId oid) = pretty oid
+type OrganisationId = Identifier Integer Organisation
 
 -- | Semi-opaque parameterised name, used to construct requests
 newtype ParamName res = ParamName String

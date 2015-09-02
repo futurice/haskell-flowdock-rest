@@ -7,9 +7,11 @@ import Data.Monoid
 import Network.HTTP.Client.TLS
 import Network.HTTP.Client
 import Data.Aeson
+import Data.Maybe (fromJust)
 import Data.ByteString.Lazy as LBS
 import Data.Aeson.Encode.Pretty
 import Data.Char
+import Data.Tagged
 import Options.Applicative
 import Text.PrettyPrint.ANSI.Leijen hiding ((<>), (<$>))
 
@@ -26,7 +28,7 @@ readAuthToken = do
   return $ AuthToken $ stringTrim contents
 
 data Command a = Command
-  { cmdUrl :: ApiUrl a
+  { cmdRequest :: Tagged a Request
   , cmdJson :: Bool
   }
 
@@ -39,11 +41,10 @@ throwDecode bs = case eitherDecode bs of
   Left err  -> error $ "throwDecode: " <> err
 
 commandIO :: forall a. (FromJSON a, Pretty a) => Command a -> IO ()
-commandIO (Command url outputJson) = do
+commandIO (Command req outputJson) = do
   token <- readAuthToken
   mgr <- newManager tlsManagerSettings
-  req <- parseApiUrl url
-  let req' = authenticateRequest token req
+  let req' = authenticateRequest token $ unTagged req
   res <- httpLbs req' mgr
   -- print res
   if outputJson
@@ -70,13 +71,21 @@ commands = subparser $ mconcat
   ]
   where
     mkCmd :: Parser (ApiUrl a) -> Parser (Command a)
-    mkCmd urlParser = Command <$> urlParser
-                              <*> switch (long "json" <> help "Whether to output raw json")
+    mkCmd urlParser = mkCmd' requestParser
+      where requestParser = parseApiUrl <$> urlParser
+
+    mkCmd' :: Parser (Maybe (Tagged a Request)) -> Parser (Command a)
+    mkCmd' requestParser = Command <$> (fromJust <$> requestParser)
+                                   <*> switch (long "json" <> help "Whether to output raw json")
 
     flowsCmd          = mkCmd (pure flowsUrl)
     allFlowsCmd       = mkCmd (pure allFlowsUrl)
     flowCmd           = mkCmd (flowGetUrl <$> paramArgument (metavar "ORG") <*> paramArgument (metavar "FLOW"))
-    messagesCmd       = mkCmd (messagesUrl <$> paramArgument (metavar "ORG") <*> paramArgument (metavar "FLOW"))
+    messagesCmd       = mkCmd' (messagesRequest <$> paramArgument (metavar "ORG") <*> paramArgument (metavar "FLOW") <*> parseMessageOptions)
+      where parseMessageOptions = MessageOptions <$> optional (option (eitherReader ev) (long "event" <> metavar "EVENT" <> help "Filter messages by event type."))
+                                                 <*> optional (option auto (long "limit" <> metavar "LIMIT" <> help "Maximum number of messages to return."))
+            ev "mail" = Right EventMail
+            ev err    = Left $ "Unknown event: " <> err
     usersCmd          = mkCmd (pure usersUrl)
     flowUsersCmd      = mkCmd (flowUsersUrl <$> paramArgument (metavar "ORG") <*> paramArgument (metavar "FLOW"))
     orgUsersCmd       = mkCmd (orgUsersUrl <$> paramArgument (metavar "ORG"))

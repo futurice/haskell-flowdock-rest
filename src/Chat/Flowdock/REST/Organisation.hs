@@ -17,10 +17,10 @@ import Data.Aeson
 import Data.Hashable
 import Data.Text as T
 import GHC.Generics
-import Text.PrettyPrint.ANSI.Leijen as PP hiding ((<>), (<$>))
 
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.User
+import Chat.Flowdock.REST.Pretty
 
 data OrgUser = OrgUser
   { _ouId :: !UserId
@@ -47,9 +47,6 @@ instance FromJSON OrgUser where
             <*> obj .: "avatar"
             <*> obj .:? "website"
             <*> obj .: "admin"
-
-prettyField :: Pretty a => String -> a -> Doc
-prettyField name value = text name <+> equals <+> pretty value
 
 instance Pretty OrgUser where
   pretty OrgUser {..} = text "OrgUser" <+> semiBraces

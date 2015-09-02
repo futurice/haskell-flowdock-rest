@@ -13,6 +13,7 @@ module Chat.Flowdock.REST (
   module Chat.Flowdock.REST.Message,
   module Chat.Flowdock.REST.Organisation,
   module Chat.Flowdock.REST.URLs,
+  module Chat.Flowdock.REST.Request,
   ) where
 
 import Chat.Flowdock.REST.Auth
@@ -22,3 +23,4 @@ import Chat.Flowdock.REST.Flow
 import Chat.Flowdock.REST.Message
 import Chat.Flowdock.REST.Organisation
 import Chat.Flowdock.REST.URLs
+import Chat.Flowdock.REST.Request

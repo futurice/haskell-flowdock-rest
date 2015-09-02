@@ -37,6 +37,7 @@ executable flowdock-rest-cli
     , http-client
     , http-client-tls
     , lens
+    , tagged
     , text
     , optparse-applicative
     , flowdock-rest == 0.0.0.0
