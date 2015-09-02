@@ -2,7 +2,26 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RecordWildCards #-}
-module Chat.Flowdock.REST.Message where
+module Chat.Flowdock.REST.Message (
+  -- * Message
+  Message(..),
+  msgContent,
+  msgTags,
+  msgCreatedAt,
+  msgEditedAt,
+  msgFlowId,
+  msgId,
+  -- * Content
+  MessageContent(..),
+  -- * Comment
+  Comment(..),
+  commentText,
+  commentTitle,
+  -- * Mail
+  Mail(..),
+  mailSubject,
+  mailContent,
+  ) where
 
 import Data.Aeson
 
@@ -21,10 +40,12 @@ import Chat.Flowdock.REST.Organisation
 import Chat.Flowdock.REST.Pretty
 
 data Comment = Comment
-  { _commentText :: !Text
+  { _commentText  :: !Text
   , _commentTitle :: !Text
   }
   deriving (Eq, Ord, Show, Generic)
+
+makeLenses ''Comment
 
 instance NFData Comment
 instance Hashable Comment
@@ -35,15 +56,10 @@ instance FromJSON Comment where
             <*> obj .: "title"
 
 instance Pretty Comment where
-  pretty Comment {..} = text "Comment" </> semiBraces
+  pretty Comment {..} = prettyRecord "Comment"
     [ prettyField "text" (T.unpack _commentText)
     , prettyField "title" (T.unpack _commentTitle)
     ]
-
-{-
-MTMail (Object (fromList [("subject",String "Keyper - 6 hours"),("bcc",Array (fromList [])),("sender",Null),("to",Array (fromList [Object (fromList [("address",String "open-source@futurice.flowdock.com"),("name",Null)])])),("from",Array (fromList [Object (fromList [("address",String "neil.mcalister@futurice.com"),("name",String "Neil McAlister")])])),("replyTo",Array (fromList [])),("content",String "<div dir=\"ltr\">Making a little app in my spare time so I can securely lug my bank codes around.<br><div>\n<br>#todo #contribution<br><br>95e4ae3 Remove stray 5<br>2715dfa Add desktop UI, &amp; multiple files feature<br><br><a href=\"https://github.com/pingzing/Keyper/commits/master\">https://github.com/pingzing/Keyper/commits/master</a><br>-- <br><div>\n<div class=\"gmail_signature\"><div dir=\"ltr\"><div><div dir=\"ltr\"><div>Neil McAlister \183 <span>+358 50 464 4090</span><br>Software Developer <span>\183</span> Futurice Oy<br><a href=\"http://www.futurice.com\">www.futurice.com</a> \183 <a href=\"http://twitter.com/futurice\">twitter.com/futurice</a><br><br>\n</div></div></div></div></div>\n</div>\n</div>\n</div>\n"),("cc",Array (fromList [])),("contentType",
-
--}
 
 data Mail = Mail
   { _mailSubject :: !Text
@@ -51,6 +67,7 @@ data Mail = Mail
   }
   deriving (Eq, Ord, Show, Generic)
 
+makeLenses ''Mail
 
 instance NFData Mail
 instance Hashable Mail
@@ -82,6 +99,8 @@ data MessageContent = MTMessage String
 instance NFData MessageContent
 instance Hashable MessageContent
 
+makeLenses ''MessageContent
+
 instance FromJSON MessageContent where
   parseJSON = withObject "Message" $ \obj -> do
     event <- obj .: "event"
@@ -101,12 +120,12 @@ instance Pretty MessageContent where
   pretty m = text . show $ m
 
 data Message = Message
-  { _msgContent :: MessageContent
-  , _msgTags :: [Text]
-  , _msgCreatedAt :: UTCTime
-  , _msgEditedAt :: Maybe UTCTime
-  , _msgFlowId :: FlowId
-  , _msgId :: MessageId
+  { _msgContent    :: !MessageContent
+  , _msgTags       :: ![Text]
+  , _msgCreatedAt  :: !UTCTime
+  , _msgEditedAt   :: !(Maybe UTCTime)
+  , _msgFlowId     :: !FlowId
+  , _msgId         :: !MessageId
   }
   deriving (Eq, Show, Generic)
 

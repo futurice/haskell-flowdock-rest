@@ -15,7 +15,7 @@ import Control.DeepSeq
 import Control.Lens
 import Data.Aeson
 import Data.Hashable
-import Data.Text as T
+import Data.Text
 import GHC.Generics
 
 import Chat.Flowdock.REST.Internal
@@ -23,16 +23,16 @@ import Chat.Flowdock.REST.User
 import Chat.Flowdock.REST.Pretty
 
 data OrgUser = OrgUser
-  { _ouId :: !UserId
-  , _ouNick :: !Text
-  , _ouName :: !Text
-  , _ouEmail :: !Text
-  , _ouAvatar :: !Text
-  , _ouWebsite :: !(Maybe Text)
-  , _ouAdmin :: !Bool
+  { _ouId       :: !UserId
+  , _ouNick     :: !Text
+  , _ouName     :: !Text
+  , _ouEmail    :: !Text
+  , _ouAvatar   :: !Text
+  , _ouWebsite  :: !(Maybe Text)
+  , _ouAdmin    :: !Bool
   }
   deriving (Eq, Ord, Show, Generic)
-  
+
 makeLenses ''OrgUser
 
 instance NFData OrgUser
@@ -49,13 +49,13 @@ instance FromJSON OrgUser where
             <*> obj .: "admin"
 
 instance Pretty OrgUser where
-  pretty OrgUser {..} = text "OrgUser" <+> semiBraces
+  pretty OrgUser {..} = prettyRecord "OrgUser"
     [ prettyField "id" _ouId
-    , prettyField "nick" (T.unpack _ouNick)
-    , prettyField "name" (T.unpack _ouName)  
-    , prettyField "email" (T.unpack _ouEmail)
-    , prettyField "avatar" (T.unpack _ouAvatar)
-    , prettyField "website" (T.unpack <$> _ouWebsite)
+    , prettyField "nick" $ prettyText _ouNick
+    , prettyField "name" $ prettyText _ouName
+    , prettyField "email" $ prettyText _ouEmail
+    , prettyField "avatar" $ prettyText _ouAvatar
+    , prettyField "website" $ prettyFunctorText _ouWebsite
     , prettyField "admin" _ouAdmin
     ]
 
@@ -69,14 +69,14 @@ instance UserLike OrgUser where
 
 
 data Organisation = Organisation
-  { _orgId' :: !OrganisationId
+  { _orgId'        :: !OrganisationId
   , _orgParamName' :: !(ParamName Organisation)
-  , _orgName' :: !Text
+  , _orgName'      :: !Text
   , _orgUserLimit' :: !Int
   , _orgUserCount' :: !Int
-  , _orgActive' :: !Bool
-  , _orgUrl' :: !(ApiUrl Organisation)
-  , _orgUsers :: ![OrgUser]
+  , _orgActive'    :: !Bool
+  , _orgUrl'       :: !(ApiUrl Organisation)
+  , _orgUsers      :: ![OrgUser]
   }
   deriving (Eq, Ord, Show, Generic)
 
@@ -97,10 +97,10 @@ instance FromJSON Organisation where
                  <*> obj .: "users"
 
 instance Pretty Organisation where
-  pretty Organisation {..} = text "Organisation" <+> semiBraces
-    [ prettyField "name" _orgId'
+  pretty Organisation {..} = prettyRecord "Organisation"
+    [ prettyField "id" _orgId'
     , prettyField "param_name" _orgParamName'
-    , prettyField "name" (T.unpack _orgName')  
+    , prettyField "name" $ prettyText _orgName'
     , prettyField "user_limit" _orgUserLimit'
     , prettyField "user_count" _orgUserCount'
     , prettyField "active" _orgActive'
@@ -108,6 +108,7 @@ instance Pretty Organisation where
     , prettyField "users" _orgUsers
     ]
 
+-- | 'Organisation' like structures
 class OrgLike o where
   orgId :: Lens' o OrganisationId
   orgName :: Lens' o Text

@@ -2,16 +2,17 @@
 {-# LANGUAGE GADTs #-}
 module Main (main) where
 
+import Control.Lens
 import Control.Monad
-import Data.Monoid
-import Network.HTTP.Client.TLS
-import Network.HTTP.Client
 import Data.Aeson
-import Data.Maybe (fromJust)
-import Data.ByteString.Lazy as LBS
 import Data.Aeson.Encode.Pretty
+import Data.ByteString.Lazy as LBS
 import Data.Char
+import Data.Maybe (fromJust)
+import Data.Monoid
 import Data.Tagged
+import Network.HTTP.Client
+import Network.HTTP.Client.TLS
 import Options.Applicative
 import Text.PrettyPrint.ANSI.Leijen hiding ((<>), (<$>))
 
@@ -82,7 +83,7 @@ commands = subparser $ mconcat
     allFlowsCmd       = mkCmd (pure allFlowsUrl)
     flowCmd           = mkCmd (flowGetUrl <$> paramArgument (metavar "ORG") <*> paramArgument (metavar "FLOW"))
     messagesCmd       = mkCmd' (messagesRequest <$> paramArgument (metavar "ORG") <*> paramArgument (metavar "FLOW") <*> parseMessageOptions)
-      where parseMessageOptions = MessageOptions <$> optional (option (eitherReader ev) (long "event" <> metavar "EVENT" <> help "Filter messages by event type."))
+      where parseMessageOptions = messageOptions <$> optional (option (eitherReader ev) (long "event" <> metavar "EVENT" <> help "Filter messages by event type."))
                                                  <*> optional (option auto (long "limit" <> metavar "LIMIT" <> help "Maximum number of messages to return."))
             ev "mail" = Right EventMail
             ev err    = Left $ "Unknown event: " <> err
@@ -91,6 +92,10 @@ commands = subparser $ mconcat
     orgUsersCmd       = mkCmd (orgUsersUrl <$> paramArgument (metavar "ORG"))
     organisationsCmd  = mkCmd (pure organisationsUrl)
     organisationCmd   = mkCmd (organisationUrl <$> paramArgument (metavar "ORG"))
+
+messageOptions :: Maybe MessageEvent -> Maybe Int -> MessageOptions
+messageOptions event limit = defMessageOptions & msgOptEvent .~ event
+                                               & msgOptLimit .~ limit
 
 main' :: SomeCommand -> IO ()
 main' (SomeCommand cmd) = commandIO cmd

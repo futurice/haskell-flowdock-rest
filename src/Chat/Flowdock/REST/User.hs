@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE RecordWildCards #-}
 module Chat.Flowdock.REST.User 
   ( User(..)
   , UserLike(..)
@@ -13,16 +14,16 @@ import Data.Aeson
 import Data.Hashable
 import Data.Text
 import GHC.Generics
-import Text.PrettyPrint.ANSI.Leijen hiding ((<>), (<$>))
 
 import Chat.Flowdock.REST.Internal
+import Chat.Flowdock.REST.Pretty
 
 data User = User
-  { _userId' :: !UserId
-  , _userEmail' :: !Text
-  , _userName' :: !Text
-  , _userNick' :: !Text
-  , _userAvatar' :: !Text
+  { _userId'      :: !UserId
+  , _userEmail'   :: !Text
+  , _userName'    :: !Text
+  , _userNick'    :: !Text
+  , _userAvatar'  :: !Text
   , _userWebsite' :: !(Maybe Text)
   }
   deriving (Eq, Ord, Show, Generic)
@@ -31,9 +32,6 @@ makeLenses ''User
 
 instance NFData User
 instance Hashable User
-
-instance Pretty User where
-  pretty = text . show
 
 instance FromJSON User where
   parseJSON = withObject "User" $ \obj ->
@@ -44,6 +42,17 @@ instance FromJSON User where
          <*> obj .: "avatar"
          <*> obj .: "website"
 
+instance Pretty User where
+  pretty User {..} = prettyRecord "OrgUser"
+    [ prettyField "id" _userId'
+    , prettyField "nick" $ prettyText _userNick'
+    , prettyField "name" $ prettyText _userName'
+    , prettyField "email" $ prettyText _userEmail'
+    , prettyField "avatar" $ prettyText _userAvatar'
+    , prettyField "website" $ prettyFunctorText _userWebsite'
+    ]
+
+-- | 'User' like structures.
 class UserLike u where
   userId       :: Lens' u UserId
   userName     :: Lens' u Text

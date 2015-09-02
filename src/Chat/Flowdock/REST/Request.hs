@@ -5,11 +5,14 @@ module Chat.Flowdock.REST.Request (
   -- * Request creation
   parseApiUrl,
   -- * Messages
+  -- | See <https://www.flowdock.com/api/messages>
   messagesRequest,
   MessageEvent(..),
-  MessageOptions(..),
-  msgOptLimit,
+  -- ** Options
+  MessageOptions,
+  defMessageOptions,
   msgOptEvent,
+  msgOptLimit,
   ) where
 
 import Control.Applicative
@@ -49,6 +52,9 @@ data MessageOptions = MessageOptions
   , _msgOptLimit :: Maybe Int
   }
   deriving (Eq, Ord, Show)
+
+defMessageOptions :: MessageOptions
+defMessageOptions = MessageOptions Nothing Nothing
 
 makeLenses ''MessageOptions
 
