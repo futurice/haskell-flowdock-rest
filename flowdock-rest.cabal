@@ -36,6 +36,7 @@ library
   build-depends:
       base >= 4.7 && <4.9
     , aeson
+    , ansi-wl-pprint
     , base64-bytestring
     , bytestring
     , deepseq
@@ -44,6 +45,8 @@ library
     , http-client
     , http-client-tls
     , lens
+    , tagged
+    , time
     , text
   exposed-modules:
       Chat.Flowdock.REST
@@ -51,7 +54,9 @@ library
       Chat.Flowdock.REST.Common
       Chat.Flowdock.REST.Flow
       Chat.Flowdock.REST.Internal
+      Chat.Flowdock.REST.Message
       Chat.Flowdock.REST.Organisation
+      Chat.Flowdock.REST.Pretty
       Chat.Flowdock.REST.URLs
       Chat.Flowdock.REST.User
   default-language: Haskell2010
@@ -65,6 +70,7 @@ test-suite flowdock-rest-test
   build-depends:
       base >= 4.7 && <4.9
     , aeson
+    , ansi-wl-pprint
     , base64-bytestring
     , bytestring
     , deepseq
@@ -73,6 +79,8 @@ test-suite flowdock-rest-test
     , http-client
     , http-client-tls
     , lens
+    , tagged
+    , time
     , text
     , flowdock-rest
     , tasty

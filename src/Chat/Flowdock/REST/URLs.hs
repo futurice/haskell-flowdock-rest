@@ -6,6 +6,9 @@ module Chat.Flowdock.REST.URLs (
   flowsUrl,
   allFlowsUrl,
   flowGetUrl,
+  -- * Messages
+  -- | See <https://www.flowdock.com/api/messages>
+  messagesUrl,
   -- * Users
   -- | See <https://www.flowdock.com/api/users>
   usersUrl,
@@ -26,6 +29,7 @@ import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.User
 import Chat.Flowdock.REST.Organisation
 import Chat.Flowdock.REST.Flow
+import Chat.Flowdock.REST.Message
 
 -- | Convert a 'ApiUrl' into a 'Request'.
 --
@@ -50,6 +54,9 @@ allFlowsUrl = mkUrl ["flows", "all"]
 
 flowGetUrl :: ParamName Organisation -> ParamName Flow -> ApiUrl Flow
 flowGetUrl (ParamName org) (ParamName flow) = mkUrl ["flows", org, flow]
+
+messagesUrl :: ParamName Organisation -> ParamName Flow -> ApiUrl [Message]
+messagesUrl (ParamName org) (ParamName flow) = mkUrl ["flows", org, flow, "messages"]
 
 usersUrl :: ApiUrl [User]
 usersUrl = mkUrl ["users"]

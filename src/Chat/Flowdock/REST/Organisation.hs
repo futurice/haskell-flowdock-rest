@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE RecordWildCards #-}
 module Chat.Flowdock.REST.Organisation (
   Organisation(..),
   OrgLike(..),
@@ -14,8 +15,9 @@ import Control.DeepSeq
 import Control.Lens
 import Data.Aeson
 import Data.Hashable
-import Data.Text
+import Data.Text as T
 import GHC.Generics
+import Text.PrettyPrint.ANSI.Leijen as PP hiding ((<>), (<$>))
 
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.User
@@ -46,6 +48,20 @@ instance FromJSON OrgUser where
             <*> obj .:? "website"
             <*> obj .: "admin"
 
+prettyField :: Pretty a => String -> a -> Doc
+prettyField name value = text name <+> equals <+> pretty value
+
+instance Pretty OrgUser where
+  pretty OrgUser {..} = text "OrgUser" <+> semiBraces
+    [ prettyField "id" _ouId
+    , prettyField "nick" (T.unpack _ouNick)
+    , prettyField "name" (T.unpack _ouName)  
+    , prettyField "email" (T.unpack _ouEmail)
+    , prettyField "avatar" (T.unpack _ouAvatar)
+    , prettyField "website" (T.unpack <$> _ouWebsite)
+    , prettyField "admin" _ouAdmin
+    ]
+
 instance UserLike OrgUser where
   userId = ouId
   userNick = ouNick
@@ -53,6 +69,7 @@ instance UserLike OrgUser where
   userEmail = ouEmail
   userAvatar = ouAvatar
   userWebsite = ouWebsite
+
 
 data Organisation = Organisation
   { _orgId' :: !OrganisationId
@@ -82,6 +99,17 @@ instance FromJSON Organisation where
                  <*> obj .: "url"
                  <*> obj .: "users"
 
+instance Pretty Organisation where
+  pretty Organisation {..} = text "Organisation" <+> semiBraces
+    [ prettyField "name" _orgId'
+    , prettyField "param_name" _orgParamName'
+    , prettyField "name" (T.unpack _orgName')  
+    , prettyField "user_limit" _orgUserLimit'
+    , prettyField "user_count" _orgUserCount'
+    , prettyField "active" _orgActive'
+    , prettyField "url" _orgUrl'
+    , prettyField "users" _orgUsers
+    ]
 
 class OrgLike o where
   orgId :: Lens' o OrganisationId

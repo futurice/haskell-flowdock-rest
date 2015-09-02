@@ -11,6 +11,7 @@ import Data.ByteString.Lazy as LBS
 import Data.Aeson.Encode.Pretty
 import Data.Char
 import Options.Applicative
+import Text.PrettyPrint.ANSI.Leijen hiding ((<>), (<$>))
 
 import Chat.Flowdock.REST
 
@@ -30,14 +31,14 @@ data Command a = Command
   }
 
 data SomeCommand where
-  SomeCommand :: (FromJSON a, Show a) => Command a -> SomeCommand
+  SomeCommand :: (FromJSON a, Pretty a) => Command a -> SomeCommand
 
 throwDecode :: FromJSON a => LBS.ByteString -> IO a
 throwDecode bs = case eitherDecode bs of
   Right x   -> return x
   Left err  -> error $ "throwDecode: " <> err
 
-commandIO :: forall a. (FromJSON a, Show a) => Command a -> IO ()
+commandIO :: forall a. (FromJSON a, Pretty a) => Command a -> IO ()
 commandIO (Command url outputJson) = do
   token <- readAuthToken
   mgr <- newManager tlsManagerSettings
@@ -49,7 +50,8 @@ commandIO (Command url outputJson) = do
     then do jsonRes <- throwDecode (responseBody res) :: IO Value
             LBS.putStr $ encodePretty jsonRes
     else do valueRes <- throwDecode (responseBody res) :: IO a
-            print valueRes
+            putDoc $ pretty valueRes
+            Prelude.putChar '\n'
 
 paramArgument :: Mod ArgumentFields String -> Parser (ParamName a)
 paramArgument mod = mkParamName <$> strArgument mod
@@ -58,7 +60,8 @@ commands :: Parser SomeCommand
 commands = subparser $ mconcat
   [ command "flows"         (info (helper <*> (SomeCommand <$> flowsCmd))         (progDesc "List flows"))
   , command "all-flows"     (info (helper <*> (SomeCommand <$> allFlowsCmd))      (progDesc "List all flows"))
-  , command "flow"          (info (helper <*> (SomeCommand <$> flowCmd)     )     (progDesc "Get a flow"))
+  , command "flow"          (info (helper <*> (SomeCommand <$> flowCmd))          (progDesc "Get a flow"))
+  , command "messages"      (info (helper <*> (SomeCommand <$> messagesCmd))      (progDesc "List messages"))
   , command "users"         (info (helper <*> (SomeCommand <$> usersCmd))         (progDesc "List all users"))
   , command "flow-users"    (info (helper <*> (SomeCommand <$> flowUsersCmd))     (progDesc "List flow users"))
   , command "org-users"     (info (helper <*> (SomeCommand <$> orgUsersCmd))      (progDesc "List an organization's users"))
@@ -70,14 +73,15 @@ commands = subparser $ mconcat
     mkCmd urlParser = Command <$> urlParser
                               <*> switch (long "json" <> help "Whether to output raw json")
 
-    flowsCmd = mkCmd (pure flowsUrl)
-    allFlowsCmd = mkCmd (pure allFlowsUrl)
-    flowCmd = mkCmd (flowGetUrl <$> paramArgument (metavar "ORG") <*> paramArgument (metavar "FLOW"))
-    usersCmd = mkCmd (pure usersUrl)
-    flowUsersCmd = mkCmd (flowUsersUrl <$> paramArgument (metavar "ORG") <*> paramArgument (metavar "FLOW"))
-    orgUsersCmd = mkCmd (orgUsersUrl <$> paramArgument (metavar "ORG"))
-    organisationsCmd = mkCmd (pure organisationsUrl)
-    organisationCmd = mkCmd (organisationUrl <$> paramArgument (metavar "ORG"))
+    flowsCmd          = mkCmd (pure flowsUrl)
+    allFlowsCmd       = mkCmd (pure allFlowsUrl)
+    flowCmd           = mkCmd (flowGetUrl <$> paramArgument (metavar "ORG") <*> paramArgument (metavar "FLOW"))
+    messagesCmd       = mkCmd (messagesUrl <$> paramArgument (metavar "ORG") <*> paramArgument (metavar "FLOW"))
+    usersCmd          = mkCmd (pure usersUrl)
+    flowUsersCmd      = mkCmd (flowUsersUrl <$> paramArgument (metavar "ORG") <*> paramArgument (metavar "FLOW"))
+    orgUsersCmd       = mkCmd (orgUsersUrl <$> paramArgument (metavar "ORG"))
+    organisationsCmd  = mkCmd (pure organisationsUrl)
+    organisationCmd   = mkCmd (organisationUrl <$> paramArgument (metavar "ORG"))
 
 main' :: SomeCommand -> IO ()
 main' (SomeCommand cmd) = commandIO cmd

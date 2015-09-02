@@ -11,6 +11,7 @@ import Data.Hashable
 import Data.Monoid
 import Data.Text as T
 import GHC.Generics
+import Text.PrettyPrint.ANSI.Leijen hiding ((<>), (<$>))
 
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.Organisation
@@ -93,3 +94,5 @@ instance FromJSON Flow where
          <*> obj .: "web_url"
          <*> obj .: "access_mode"
 
+instance Pretty Flow where
+  pretty = text . show

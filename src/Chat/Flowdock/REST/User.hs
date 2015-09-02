@@ -13,6 +13,7 @@ import Data.Aeson
 import Data.Hashable
 import Data.Text
 import GHC.Generics
+import Text.PrettyPrint.ANSI.Leijen hiding ((<>), (<$>))
 
 import Chat.Flowdock.REST.Internal
 
@@ -30,6 +31,9 @@ makeLenses ''User
 
 instance NFData User
 instance Hashable User
+
+instance Pretty User where
+  pretty = text . show
 
 instance FromJSON User where
   parseJSON = withObject "User" $ \obj ->
