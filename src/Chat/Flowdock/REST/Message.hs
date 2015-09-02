@@ -63,7 +63,7 @@ instance FromJSON Mail where
 instance Pretty Mail where
   pretty Mail {..} = text "Mail" </> semiBraces
     [ prettyField "subject" (T.unpack _mailSubject)
-    , prettyField "content" (T.unpack _mailContent)
+    -- , prettyField "content" (T.unpack _mailContent) -- Let's omit content for brevity
     ]
 
 data MessageContent = MTMessage String
