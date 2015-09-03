@@ -2,5 +2,6 @@ flags: {}
 packages:
 - '.'
 - 'flowdock-rest-cli'
+- 'monad-http'
 extra-deps: []
 resolver: lts-3.3

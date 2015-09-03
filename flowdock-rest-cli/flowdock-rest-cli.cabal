@@ -1,4 +1,4 @@
--- This file has been generated from package.yaml by hpack version 0.6.0.
+-- This file has been generated from package.yaml by hpack version 0.7.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -33,12 +33,15 @@ executable flowdock-rest-cli
     , base64-bytestring
     , bytestring
     , deepseq
+    , exceptions
     , hashable >= 1.2
     , http-client
     , http-client-tls
     , lens
+    , monad-http
     , tagged
     , text
     , optparse-applicative
+    , transformers
     , flowdock-rest == 0.0.0.0
   default-language: Haskell2010

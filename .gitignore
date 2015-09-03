@@ -8,3 +8,4 @@ cabal.sandbox.config
 .stack-work
 
 .flowdock-rest-api-token
+.cache

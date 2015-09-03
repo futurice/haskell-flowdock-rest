@@ -4,6 +4,10 @@ module Main (main) where
 
 import Control.Lens
 import Control.Monad
+import Control.Monad.Caching
+import Control.Monad.Catch
+import Control.Monad.HTTP
+import Control.Monad.IO.Class
 import Data.Aeson
 import Data.Aeson.Encode.Pretty
 import Data.ByteString.Lazy as LBS
@@ -11,7 +15,7 @@ import Data.Char
 import Data.Maybe (fromJust)
 import Data.Monoid
 import Data.Tagged
-import Network.HTTP.Client
+import Network.HTTP.Client hiding (httpLbs)
 import Network.HTTP.Client.TLS
 import Options.Applicative
 import Text.PrettyPrint.ANSI.Leijen hiding ((<>), (<$>))
@@ -36,24 +40,30 @@ data Command a = Command
 data SomeCommand where
   SomeCommand :: (FromJSON a, Pretty a) => Command a -> SomeCommand
 
-throwDecode :: FromJSON a => LBS.ByteString -> IO a
+throwDecode :: (MonadThrow m, FromJSON a) => LBS.ByteString -> m a
 throwDecode bs = case eitherDecode bs of
   Right x   -> return x
   Left err  -> error $ "throwDecode: " <> err
 
-commandIO :: forall a. (FromJSON a, Pretty a) => Command a -> IO ()
-commandIO (Command req outputJson) = do
-  token <- readAuthToken
-  mgr <- newManager tlsManagerSettings
+--  mgr <- newManager tlsManagerSettings
+
+commandM :: forall a m . (FromJSON a, Pretty a, MonadThrow m, MonadIO m, MonadHTTP m) => Command a -> m ()
+commandM (Command req outputJson) = do
+  token <- liftIO readAuthToken
   let req' = authenticateRequest token $ unTagged req
-  res <- httpLbs req' mgr
+  res <- httpLbs req'
   -- print res
   if outputJson
-    then do jsonRes <- throwDecode (responseBody res) :: IO Value
-            LBS.putStr $ encodePretty jsonRes
-    else do valueRes <- throwDecode (responseBody res) :: IO a
-            putDoc $ pretty valueRes
-            Prelude.putChar '\n'
+    then do jsonRes <- throwDecode (responseBody res) :: m Value
+            liftIO $ LBS.putStr $ encodePretty jsonRes
+    else do valueRes <- throwDecode (responseBody res) :: m a
+            liftIO $ putDoc $ pretty valueRes
+            liftIO $ Prelude.putChar '\n'
+
+httpIO :: CachingT (HttpT IO) a -> IO a
+httpIO a = do
+  mgr <- newManager tlsManagerSettings
+  flip runHttpT mgr . flip runCachingT (responseDirectoryCache ".cache") $ a
 
 paramArgument :: Mod ArgumentFields String -> Parser (ParamName a)
 paramArgument mod = mkParamName <$> strArgument mod
@@ -98,7 +108,7 @@ messageOptions event limit = defMessageOptions & msgOptEvent .~ event
                                                & msgOptLimit .~ limit
 
 main' :: SomeCommand -> IO ()
-main' (SomeCommand cmd) = commandIO cmd
+main' (SomeCommand cmd) = httpIO $ commandM cmd
 
 main :: IO ()
 main = execParser opts >>= main'

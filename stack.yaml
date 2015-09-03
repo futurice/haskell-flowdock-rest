@@ -2,6 +2,7 @@ flags: {}
 packages:
 - '.'
 - 'flowdock-rest-cli'
+- 'monad-http'
 extra-deps:
 - file-embed-0.0.9
 resolver: lts-2.22
