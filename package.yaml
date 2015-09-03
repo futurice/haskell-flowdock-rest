@@ -22,6 +22,7 @@ dependencies:
   - bytestring
   - deepseq
   - exceptions
+  - generics-sop
   - hashable >= 1.2
   - http-client
   - http-client-tls

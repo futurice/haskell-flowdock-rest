@@ -16,7 +16,8 @@ import Control.Lens
 import Data.Aeson
 import Data.Hashable
 import Data.Text
-import GHC.Generics
+import GHC.Generics as GHC
+import Generics.SOP as SOP
 
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.User
@@ -31,12 +32,14 @@ data OrgUser = OrgUser
   , _ouWebsite  :: !(Maybe Text)
   , _ouAdmin    :: !Bool
   }
-  deriving (Eq, Ord, Show, Generic)
+  deriving (Eq, Ord, Show, GHC.Generic)
 
 makeLenses ''OrgUser
 
 instance NFData OrgUser
 instance Hashable OrgUser
+instance SOP.Generic OrgUser
+instance SOP.HasDatatypeInfo OrgUser
 
 instance FromJSON OrgUser where
   parseJSON = withObject "User" $ \obj ->
@@ -49,15 +52,7 @@ instance FromJSON OrgUser where
             <*> obj .: "admin"
 
 instance Pretty OrgUser where
-  pretty OrgUser {..} = prettyRecord "OrgUser"
-    [ prettyField "id" _ouId
-    , prettyField "nick" $ prettyText _ouNick
-    , prettyField "name" $ prettyText _ouName
-    , prettyField "email" $ prettyText _ouEmail
-    , prettyField "avatar" $ prettyText _ouAvatar
-    , prettyField "website" $ prettyFunctorText _ouWebsite
-    , prettyField "admin" _ouAdmin
-    ]
+  pretty = gprettyWith (prettyOpts "_ou")
 
 instance UserLike OrgUser where
   userId = ouId
@@ -78,12 +73,14 @@ data Organisation = Organisation
   , _orgUrl'       :: !(ApiUrl Organisation)
   , _orgUsers      :: ![OrgUser]
   }
-  deriving (Eq, Ord, Show, Generic)
+  deriving (Eq, Ord, Show, GHC.Generic)
 
 makeLenses ''Organisation
 
 instance NFData Organisation
 instance Hashable Organisation
+instance SOP.Generic Organisation
+instance SOP.HasDatatypeInfo Organisation
 
 instance FromJSON Organisation where
   parseJSON = withObject "Organisation" $ \obj ->
@@ -97,16 +94,7 @@ instance FromJSON Organisation where
                  <*> obj .: "users"
 
 instance Pretty Organisation where
-  pretty Organisation {..} = prettyRecord "Organisation"
-    [ prettyField "id" _orgId'
-    , prettyField "param_name" _orgParamName'
-    , prettyField "name" $ prettyText _orgName'
-    , prettyField "user_limit" _orgUserLimit'
-    , prettyField "user_count" _orgUserCount'
-    , prettyField "active" _orgActive'
-    , prettyField "url" _orgUrl'
-    , prettyField "users" _orgUsers
-    ]
+  pretty = gprettyWith (prettyOpts "_org")
 
 -- | 'Organisation' like structures
 class OrgLike o where

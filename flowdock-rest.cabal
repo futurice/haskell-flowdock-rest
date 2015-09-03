@@ -1,4 +1,4 @@
--- This file has been generated from package.yaml by hpack version 0.6.0.
+-- This file has been generated from package.yaml by hpack version 0.7.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -41,6 +41,7 @@ library
     , bytestring
     , deepseq
     , exceptions
+    , generics-sop
     , hashable >= 1.2
     , http-client
     , http-client-tls
@@ -76,6 +77,7 @@ test-suite flowdock-rest-test
     , bytestring
     , deepseq
     , exceptions
+    , generics-sop
     , hashable >= 1.2
     , http-client
     , http-client-tls

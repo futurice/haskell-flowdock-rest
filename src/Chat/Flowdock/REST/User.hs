@@ -13,7 +13,8 @@ import Control.Lens
 import Data.Aeson
 import Data.Hashable
 import Data.Text
-import GHC.Generics
+import GHC.Generics as GHC
+import Generics.SOP as SOP
 
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.Pretty
@@ -26,12 +27,14 @@ data User = User
   , _userAvatar'  :: !Text
   , _userWebsite' :: !(Maybe Text)
   }
-  deriving (Eq, Ord, Show, Generic)
+  deriving (Eq, Ord, Show, GHC.Generic)
 
 makeLenses ''User
 
 instance NFData User
 instance Hashable User
+instance SOP.Generic User
+instance SOP.HasDatatypeInfo User
 
 instance FromJSON User where
   parseJSON = withObject "User" $ \obj ->
@@ -43,14 +46,7 @@ instance FromJSON User where
          <*> obj .: "website"
 
 instance Pretty User where
-  pretty User {..} = prettyRecord "OrgUser"
-    [ prettyField "id" _userId'
-    , prettyField "nick" $ prettyText _userNick'
-    , prettyField "name" $ prettyText _userName'
-    , prettyField "email" $ prettyText _userEmail'
-    , prettyField "avatar" $ prettyText _userAvatar'
-    , prettyField "website" $ prettyFunctorText _userWebsite'
-    ]
+  pretty = gprettyWith (prettyOpts "_user")
 
 -- | 'User' like structures.
 class UserLike u where

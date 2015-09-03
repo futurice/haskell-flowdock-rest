@@ -11,7 +11,8 @@ import Data.Aeson
 import Data.Hashable
 import Data.Monoid
 import Data.Text as T
-import GHC.Generics
+import GHC.Generics as GHC
+import Generics.SOP as SOP
 
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.Organisation
@@ -20,7 +21,7 @@ import Chat.Flowdock.REST.Pretty
 data FlowAccessMode = FAMInvintation
                     | FAMLink
                     | FAMOrganisation
-  deriving (Eq, Ord, Show, Enum, Bounded, Generic)
+  deriving (Eq, Ord, Show, Enum, Bounded, GHC.Generic)
 
 instance NFData FlowAccessMode
 instance Hashable FlowAccessMode
@@ -47,12 +48,14 @@ data FlowOrg = FlowOrg
   , _foActive    :: !Bool
   , _foUrl       :: !(ApiUrl Organisation)
   }
-  deriving (Eq, Ord, Show, Generic)
+  deriving (Eq, Ord, Show, GHC.Generic)
 
 makeLenses ''FlowOrg
 
 instance NFData FlowOrg
 instance Hashable FlowOrg
+instance SOP.Generic FlowOrg
+instance SOP.HasDatatypeInfo FlowOrg
 
 instance FromJSON FlowOrg where
   parseJSON = withObject "Flow Org" $ \obj ->
@@ -65,15 +68,7 @@ instance FromJSON FlowOrg where
             <*> obj .: "url"
 
 instance Pretty FlowOrg where
-  pretty FlowOrg {..} = prettyRecord "FlowOrg"
-    [ prettyField "id" _foId
-    , prettyField "param_name" _foParamName
-    , prettyField "name" $ prettyText _foName
-    , prettyField "user_limit" _foUserLimit
-    , prettyField "user_count" _foUserCount
-    , prettyField "active" _foActive
-    , prettyField "url" _foUrl
-    ]
+  pretty = gprettyWith (prettyOpts "_fo")
 
 instance OrgLike FlowOrg where
   orgId = foId
@@ -94,12 +89,14 @@ data Flow = Flow
   , _flowWebUrl       :: !Text
   , _flowAccessMode   :: !FlowAccessMode
   }
-  deriving (Eq, Ord, Show, Generic)
+  deriving (Eq, Ord, Show, GHC.Generic)
 
 makeLenses ''Flow
 
 instance NFData Flow
 instance Hashable Flow
+instance SOP.Generic Flow
+instance SOP.HasDatatypeInfo Flow
 
 instance FromJSON Flow where
   parseJSON = withObject "Flow" $ \obj ->
@@ -112,11 +109,4 @@ instance FromJSON Flow where
          <*> obj .: "access_mode"
 
 instance Pretty Flow where
-  pretty Flow {..} = prettyRecord "Flow"
-    [ prettyField "id" _flowId
-    , prettyField "param_name" _flowParamName
-    , prettyField "name" $ prettyText _flowName
-    , prettyField "org" _flowOrganisation
-    , prettyField "url" _flowUrl
-    , prettyField "accessMode" _flowAccessMode
-    ]
+  pretty = gprettyWith (prettyOpts "_flow")

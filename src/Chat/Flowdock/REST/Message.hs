@@ -36,7 +36,8 @@ import Data.Hashable
 import Data.Monoid
 import Data.Text as T
 import Data.Time
-import GHC.Generics
+import GHC.Generics as GHC
+import Generics.SOP as SOP
 
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.Organisation
@@ -46,12 +47,14 @@ data Comment = Comment
   { _commentText  :: !Text
   , _commentTitle :: !Text
   }
-  deriving (Eq, Ord, Show, Generic)
+  deriving (Eq, Ord, Show, GHC.Generic)
 
 makeLenses ''Comment
 
 instance NFData Comment
 instance Hashable Comment
+instance SOP.Generic Comment
+instance SOP.HasDatatypeInfo Comment
 
 instance FromJSON Comment where
   parseJSON = withObject "Commnet" $ \obj ->
@@ -59,22 +62,20 @@ instance FromJSON Comment where
             <*> obj .: "title"
 
 instance Pretty Comment where
-  pretty Comment {..} = prettyRecord "Comment"
-    [ prettyField "text" (T.unpack _commentText)
-    , prettyField "title" (T.unpack _commentTitle)
-    ]
-
+  pretty = gprettyWith (prettyOpts "_comment")
 
 data MailAddress = MailAddress
   { _mailAddress     :: !Text
   , _mailAddressName :: !(Maybe Text)
   }
-  deriving (Eq, Ord, Show, Generic)
+  deriving (Eq, Ord, Show, GHC.Generic)
 
 makeLenses ''MailAddress
 
 instance NFData MailAddress
 instance Hashable MailAddress
+instance SOP.Generic MailAddress
+instance SOP.HasDatatypeInfo MailAddress
 
 instance FromJSON MailAddress where
   parseJSON = withObject "MailAddress" $ \obj ->
@@ -95,12 +96,14 @@ data Mail = Mail
   , _mailBcc     :: ![MailAddress]
   , _mailReplyTo :: ![MailAddress]
   }
-  deriving (Eq, Ord, Show, Generic)
+  deriving (Eq, Ord, Show, GHC.Generic)
 
 makeLenses ''Mail
 
 instance NFData Mail
 instance Hashable Mail
+instance SOP.Generic Mail
+instance SOP.HasDatatypeInfo Mail
 
 instance FromJSON Mail where
   parseJSON = withObject "Mail" $ \obj ->
@@ -113,12 +116,7 @@ instance FromJSON Mail where
          <*> obj .: "replyTo"
 
 instance Pretty Mail where
-  pretty Mail {..} = prettyRecord "Mail"
-    [ prettyField "subject" (T.unpack _mailSubject)
-    , prettyField "to" _mailTo
-    , prettyField "from" _mailFrom
-    -- , prettyField "content" (T.unpack _mailContent) -- Let's omit content for brevity
-    ]
+  pretty = gprettyWith (prettyOpts "_mail")
 
 data MessageContent = MTMessage String
                     | MTStatus
@@ -131,7 +129,7 @@ data MessageContent = MTMessage String
                     | MTMail Mail
                     | MTActivity
                     | MTDiscussion Value
-  deriving (Eq, Show, Generic)
+  deriving (Eq, Show, GHC.Generic)
 
 instance NFData MessageContent
 instance Hashable MessageContent
@@ -164,12 +162,14 @@ data Message = Message
   , _msgFlowId     :: !FlowId
   , _msgId         :: !MessageId
   }
-  deriving (Eq, Show, Generic)
+  deriving (Eq, Show, GHC.Generic)
 
 makeLenses ''Message
 
 instance NFData Message
 -- instance Hashable Message
+instance SOP.Generic Message
+instance SOP.HasDatatypeInfo Message
 
 instance FromJSON Message where
   parseJSON v = do
@@ -183,9 +183,4 @@ instance FromJSON Message where
               <*> obj .: "id"
 
 instance Pretty Message where
-  pretty Message {..} = text "Message" </> semiBraces
-    [ prettyField "id" _msgId
-    , prettyField "flow" _msgFlowId
-    , prettyField "tags" (T.unpack <$> _msgTags)
-    , prettyField "content" _msgContent
-    ]
+  pretty = gprettyWith (prettyOpts "_msg")
