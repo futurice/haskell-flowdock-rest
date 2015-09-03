@@ -13,6 +13,7 @@ module Chat.Flowdock.REST.Request (
   defMessageOptions,
   msgOptEvent,
   msgOptLimit,
+  msgOptUntilId,
   ) where
 
 import Control.Applicative
@@ -50,11 +51,12 @@ messageEventToString EventMail = "mail"
 data MessageOptions = MessageOptions
   { _msgOptEvent :: Maybe MessageEvent
   , _msgOptLimit :: Maybe Int
+  , _msgOptUntilId :: Maybe MessageId
   }
   deriving (Eq, Ord, Show)
 
 defMessageOptions :: MessageOptions
-defMessageOptions = MessageOptions Nothing Nothing
+defMessageOptions = MessageOptions Nothing Nothing Nothing
 
 makeLenses ''MessageOptions
 
@@ -64,5 +66,6 @@ messagesRequest org flow MessageOptions {..} = do
   return $ setQueryString queryString <$> req
   where queryString = catMaybes [ (\e -> ("event", Just $ messageEventToString e)) <$> _msgOptEvent 
                                 , (\l -> ("limit", Just $ fromString $ show l)) <$> _msgOptLimit
+                                , (\u -> ("until_id", Just $ fromString $ show $ getIdentifier u)) <$> _msgOptUntilId
                                 ]
 

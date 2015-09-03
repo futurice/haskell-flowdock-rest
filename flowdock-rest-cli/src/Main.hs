@@ -95,6 +95,7 @@ commands = subparser $ mconcat
     messagesCmd       = mkCmd' (messagesRequest <$> paramArgument (metavar "ORG") <*> paramArgument (metavar "FLOW") <*> parseMessageOptions)
       where parseMessageOptions = messageOptions <$> optional (option (eitherReader ev) (long "event" <> metavar "EVENT" <> help "Filter messages by event type."))
                                                  <*> optional (option auto (long "limit" <> metavar "LIMIT" <> help "Maximum number of messages to return."))
+                                                 <*> optional (option auto (long "until" <> metavar "MSGID" <> help "Get messages leading to a message id."))
             ev "mail" = Right EventMail
             ev err    = Left $ "Unknown event: " <> err
     usersCmd          = mkCmd (pure usersUrl)
@@ -103,9 +104,11 @@ commands = subparser $ mconcat
     organisationsCmd  = mkCmd (pure organisationsUrl)
     organisationCmd   = mkCmd (organisationUrl <$> paramArgument (metavar "ORG"))
 
-messageOptions :: Maybe MessageEvent -> Maybe Int -> MessageOptions
-messageOptions event limit = defMessageOptions & msgOptEvent .~ event
-                                               & msgOptLimit .~ limit
+messageOptions :: Maybe MessageEvent -> Maybe Int -> Maybe Integer -> MessageOptions
+messageOptions event limit untilId =
+  defMessageOptions & msgOptEvent .~ event
+                    & msgOptLimit .~ limit
+                    & msgOptUntilId .~ (mkIdentifier <$> untilId)
 
 main' :: SomeCommand -> IO ()
 main' (SomeCommand cmd) = httpIO $ commandM cmd

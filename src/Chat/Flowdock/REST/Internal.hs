@@ -1,6 +1,8 @@
 module Chat.Flowdock.REST.Internal
   ( ApiUrl(..)
   , Identifier(..)
+  , mkIdentifier
+  , getIdentifier
   , ParamName(..)
   , mkParamName
   , FlowId, MessageId, UserId, OrganisationId
@@ -42,6 +44,12 @@ instance FromJSON a => FromJSON (Identifier a res) where
 
 instance Pretty a => Pretty (Identifier a res) where
   pretty (Identifier a) = pretty a
+
+mkIdentifier :: a -> Identifier a res
+mkIdentifier = Identifier
+
+getIdentifier :: Identifier a res -> a
+getIdentifier (Identifier x) = x
 
 -- Non exported tags
 data Flow

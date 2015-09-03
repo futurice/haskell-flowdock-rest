@@ -3,6 +3,7 @@ module Chat.Flowdock.REST.Common (
   MessageId,
   UserId,
   OrganisationId,
+  mkIdentifier,
   ApiUrl,
   ParamName,
   mkParamName,
