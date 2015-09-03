@@ -21,6 +21,9 @@ module Chat.Flowdock.REST.Message (
   Mail(..),
   mailSubject,
   mailContent,
+  MailAddress(..),
+  mailAddress,
+  mailAddressName,
   ) where
 
 import Data.Aeson
@@ -61,9 +64,36 @@ instance Pretty Comment where
     , prettyField "title" (T.unpack _commentTitle)
     ]
 
+
+data MailAddress = MailAddress
+  { _mailAddress     :: !Text
+  , _mailAddressName :: !(Maybe Text)
+  }
+  deriving (Eq, Ord, Show, Generic)
+
+makeLenses ''MailAddress
+
+instance NFData MailAddress
+instance Hashable MailAddress
+
+instance FromJSON MailAddress where
+  parseJSON = withObject "MailAddress" $ \obj ->
+    MailAddress <$> obj .: "address"
+                <*> obj .:? "name"
+
+instance Pretty MailAddress where
+  pretty (MailAddress addr Nothing)     = text . T.unpack $ addr
+  pretty (MailAddress addr (Just name)) = text . T.unpack $ name <> " <" <> addr <> ">"
+
+
 data Mail = Mail
   { _mailSubject :: !Text
   , _mailContent :: !Text
+  , _mailTo      :: ![MailAddress]
+  , _mailFrom    :: ![MailAddress]
+  , _mailCc      :: ![MailAddress]
+  , _mailBcc     :: ![MailAddress]
+  , _mailReplyTo :: ![MailAddress]
   }
   deriving (Eq, Ord, Show, Generic)
 
@@ -76,10 +106,17 @@ instance FromJSON Mail where
   parseJSON = withObject "Mail" $ \obj ->
     Mail <$> obj .: "subject"
          <*> obj .: "content"
+         <*> obj .: "to"
+         <*> obj .: "from"
+         <*> obj .: "cc"
+         <*> obj .: "bcc"
+         <*> obj .: "replyTo"
 
 instance Pretty Mail where
-  pretty Mail {..} = text "Mail" </> semiBraces
+  pretty Mail {..} = prettyRecord "Mail"
     [ prettyField "subject" (T.unpack _mailSubject)
+    , prettyField "to" _mailTo
+    , prettyField "from" _mailFrom
     -- , prettyField "content" (T.unpack _mailContent) -- Let's omit content for brevity
     ]
 
