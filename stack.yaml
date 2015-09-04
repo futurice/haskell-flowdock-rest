@@ -3,6 +3,10 @@ packages:
 - '.'
 - 'flowdock-rest-cli'
 - 'monad-http'
+- 'spice-stats'
 extra-deps:
 - file-embed-0.0.9
+- regex-applicative-text-0.1.0.0
+- github-0.13.2
+- failure-0.2.0.3
 resolver: lts-2.22

@@ -1,0 +1,43 @@
+name: spice-stats
+version: 0.0.0.0
+synopsis: Realm of Chilicorn
+description: OmgLolKek
+author: Oleg Grenrus <oleg.grenrus@iki.fi>
+maintainer: Oleg Grenrus <oleg.grenrus@iki.fi>
+license: BSD3
+github: futurice/haskell-flowdock-rest
+category: Web
+
+ghc-options: -Wall
+
+dependencies:
+  - base >= 4.7 && <4.9
+  - aeson
+  - aeson-pretty
+  - ansi-wl-pprint
+  - base64-bytestring
+  - bytestring
+  - deepseq
+  - exceptions
+  - hashable >= 1.2
+  - github
+  - http-client
+  - http-client-tls
+  - lens
+  - monad-http
+  - tagged
+  - text
+  - optparse-applicative
+  - transformers
+  - case-insensitive
+  - http-types
+  - unordered-containers
+  - regex-applicative
+  - regex-applicative-text
+  - regex-compat
+  - flowdock-rest == 0.0.0.0
+
+executables:
+  spice-stats:
+    main: Main.hs
+    source-dirs: src
