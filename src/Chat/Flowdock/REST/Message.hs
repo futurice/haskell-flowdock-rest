@@ -13,6 +13,7 @@ module Chat.Flowdock.REST.Message (
   msgId,
   -- * Content
   MessageContent(..),
+  _MTMail,
   -- * Comment
   Comment(..),
   commentText,
@@ -21,6 +22,11 @@ module Chat.Flowdock.REST.Message (
   Mail(..),
   mailSubject,
   mailContent,
+  mailFrom,
+  mailTo,
+  mailCc,
+  mailBcc,
+  mailReplyTo,
   MailAddress(..),
   mailAddress,
   mailAddressName,
@@ -134,7 +140,7 @@ data MessageContent = MTMessage String
 instance NFData MessageContent
 instance Hashable MessageContent
 
-makeLenses ''MessageContent
+makePrisms ''MessageContent
 
 instance FromJSON MessageContent where
   parseJSON = withObject "Message" $ \obj -> do
