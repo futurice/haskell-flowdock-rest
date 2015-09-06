@@ -7,7 +7,6 @@ module Chat.Flowdock.REST.Request (
   -- * Messages
   -- | See <https://www.flowdock.com/api/messages>
   messagesRequest,
-  MessageEvent(..),
   -- ** Options
   MessageOptions,
   defMessageOptions,
@@ -42,12 +41,6 @@ import Chat.Flowdock.REST.URLs
 parseApiUrl :: MonadThrow m => ApiUrl a -> m (Tagged a Request)
 parseApiUrl (ApiUrl url) = Tagged `liftM` parseUrl url
 
-data MessageEvent = EventMail
-  deriving (Eq, Ord, Show, Enum, Bounded)
-  
-messageEventToString :: MessageEvent -> ByteString
-messageEventToString EventMail = "mail"
-
 data MessageOptions = MessageOptions
   { _msgOptEvent :: Maybe MessageEvent
   , _msgOptLimit :: Maybe Int
@@ -64,8 +57,7 @@ messagesRequest :: MonadThrow m => ParamName Organisation -> ParamName Flow -> M
 messagesRequest org flow MessageOptions {..} = do
   req <- parseApiUrl (messagesUrl org flow)
   return $ setQueryString queryString <$> req
-  where queryString = catMaybes [ (\e -> ("event", Just $ messageEventToString e)) <$> _msgOptEvent 
-                                , (\l -> ("limit", Just $ fromString $ show l)) <$> _msgOptLimit
+  where queryString = catMaybes [ (\e -> ("event",    Just $ fromString $ messageEventToString e)) <$> _msgOptEvent
+                                , (\l -> ("limit",    Just $ fromString $ show l))                 <$> _msgOptLimit
                                 , (\u -> ("until_id", Just $ fromString $ show $ getIdentifier u)) <$> _msgOptUntilId
                                 ]
-

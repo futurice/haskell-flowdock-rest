@@ -12,6 +12,9 @@ module Chat.Flowdock.REST.Message (
   msgFlowId,
   msgId,
   -- * Content
+  MessageEvent(..),
+  messageEventToString,
+  messageEventFromString,
   MessageContent(..),
   _MTMail,
   -- * Comment
@@ -124,17 +127,50 @@ instance FromJSON Mail where
 instance AnsiPretty Mail where
   ansiPretty = gprettyWith (prettyOpts "_mail")
 
+data MessageEvent = EventMessage
+                  | EventStatus
+                  | EventComment
+                  | EventAction
+                  | EventTagChange
+                  | EventMessageEdit
+                  | EventActivityUser
+                  | EventFile
+                  | EventMail
+                  | EventActivity
+                  | EventDiscussion
+  deriving (Eq, Ord, Show, Enum, Bounded)
+
+messageEventToString :: MessageEvent -> String
+messageEventToString EventMessage      = "message"
+messageEventToString EventStatus       = "status"
+messageEventToString EventComment      = "comment"
+messageEventToString EventAction       = "action"
+messageEventToString EventTagChange    = "tag-change"
+messageEventToString EventMessageEdit  = "message-edit"
+messageEventToString EventActivityUser = "activity.user"
+messageEventToString EventFile         = "file"
+messageEventToString EventMail         = "mail"
+messageEventToString EventActivity     = "activity"
+messageEventToString EventDiscussion   = "discussion"
+
+messageEventLookupTable :: [(String, MessageEvent)]
+messageEventLookupTable = fmap f [minBound..maxBound]
+  where f e = (messageEventToString e, e)
+
+messageEventFromString :: String -> Maybe MessageEvent
+messageEventFromString = flip lookup messageEventLookupTable
+
 data MessageContent = MTMessage String
-                    | MTStatus
+                    | MTStatus String
                     | MTComment Comment
-                    | MTAction
-                    | MTTagChange
-                    | MTMessageEdit
-                    | MTActivityUser
+                    | MTAction Value
+                    | MTTagChange Value
+                    | MTMessageEdit Value
+                    | MTActivityUser Value
                     | MTFile Value
                     | MTMail Mail
-                    | MTActivity
-                    | MTDiscussion Value
+                    | MTActivity -- No action
+                    | MTDiscussion
   deriving (Eq, Show, GHC.Generic)
 
 instance NFData MessageContent
@@ -147,11 +183,15 @@ instance FromJSON MessageContent where
     event <- obj .: "event"
     content <- obj .: "content"
     case event of
-      "message" -> MTMessage <$> parseJSON content
-      "comment" -> MTComment <$> parseJSON content
-      "file"    -> pure $ MTFile content
-      "mail"    -> MTMail <$> parseJSON content
-      _         -> fail $ "Invalid message type: " <> event
+      "message"    -> MTMessage    <$> parseJSON content
+      "comment"    -> MTComment    <$> parseJSON content
+      "status"     -> MTStatus     <$> parseJSON content
+      "action"     -> MTAction     <$> parseJSON content
+      "file"       -> MTFile       <$> parseJSON content
+      "mail"       -> MTMail       <$> parseJSON content
+      "activity"   -> pure MTActivity
+      "discussion" -> pure MTDiscussion
+      _          -> fail $ "Invalid message type: " <> event
 
 
 instance AnsiPretty MessageContent where
@@ -166,6 +206,7 @@ data Message = Message
   , _msgCreatedAt  :: !UTCTime
   , _msgEditedAt   :: !(Maybe UTCTime)
   , _msgFlowId     :: !FlowId
+  , _msgUser       :: !String -- TODO
   , _msgId         :: !MessageId
   }
   deriving (Eq, Show, GHC.Generic)
@@ -186,6 +227,7 @@ instance FromJSON Message where
               <*> obj .: "created_at"
               <*> obj .:? "edited_at"
               <*> obj .: "flow"
+              <*> obj .: "user"
               <*> obj .: "id"
 
 instance AnsiPretty Message where

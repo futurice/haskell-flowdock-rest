@@ -45,8 +45,6 @@ throwDecode bs = case eitherDecode bs of
   Right x   -> return x
   Left err  -> error $ "throwDecode: " <> err
 
---  mgr <- newManager tlsManagerSettings
-
 commandM :: forall a m . (FromJSON a, AnsiPretty a, MonadThrow m, MonadIO m, MonadHTTP m) => Command a -> m ()
 commandM (Command req outputJson) = do
   token <- liftIO readAuthToken
@@ -96,13 +94,13 @@ commands = subparser $ mconcat
       where parseMessageOptions = messageOptions <$> optional (option (eitherReader ev) (long "event" <> metavar "EVENT" <> help "Filter messages by event type."))
                                                  <*> optional (option auto (long "limit" <> metavar "LIMIT" <> help "Maximum number of messages to return."))
                                                  <*> optional (option auto (long "until" <> metavar "MSGID" <> help "Get messages leading to a message id."))
-            ev "mail" = Right EventMail
-            ev err    = Left $ "Unknown event: " <> err
+            ev e = maybe (Left ("Unknown event: " <> e)) Right (messageEventFromString e)
     usersCmd          = mkCmd (pure usersUrl)
     flowUsersCmd      = mkCmd (flowUsersUrl <$> paramArgument (metavar "ORG") <*> paramArgument (metavar "FLOW"))
     orgUsersCmd       = mkCmd (orgUsersUrl <$> paramArgument (metavar "ORG"))
     organisationsCmd  = mkCmd (pure organisationsUrl)
     organisationCmd   = mkCmd (organisationUrl <$> paramArgument (metavar "ORG"))
+
 
 messageOptions :: Maybe MessageEvent -> Maybe Int -> Maybe Integer -> MessageOptions
 messageOptions event limit untilId =
