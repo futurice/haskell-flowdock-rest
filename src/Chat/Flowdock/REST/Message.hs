@@ -11,12 +11,22 @@ module Chat.Flowdock.REST.Message (
   msgEditedAt,
   msgFlowId,
   msgId,
+  msgUser,
   -- * Content
   MessageEvent(..),
   messageEventToString,
   messageEventFromString,
   MessageContent(..),
+  _MTStatus,
+  _MTComment,
+  _MTAction,
+  _MTTagChange,
+  _MTMessageEdit,
+  _MTActivityUser,
+  _MTFile,
   _MTMail,
+  _MTActivity,
+  _MTDiscussion,
   -- * Comment
   Comment(..),
   commentText,
@@ -35,8 +45,6 @@ module Chat.Flowdock.REST.Message (
   mailAddressName,
   ) where
 
-import Data.Aeson
-
 import Control.Applicative
 import Control.DeepSeq
 import Control.Lens
@@ -47,10 +55,9 @@ import Data.Text as T
 import Data.Time
 import GHC.Generics as GHC
 import Generics.SOP as SOP
+import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 import Chat.Flowdock.REST.Internal
-import Chat.Flowdock.REST.Organisation
-import Chat.Flowdock.REST.Pretty
 
 data Comment = Comment
   { _commentText  :: !Text
@@ -66,12 +73,12 @@ instance SOP.Generic Comment
 instance SOP.HasDatatypeInfo Comment
 
 instance FromJSON Comment where
-  parseJSON = withObject "Commnet" $ \obj ->
+  parseJSON = withObject "Comment" $ \obj ->
     Comment <$> obj .: "text"
             <*> obj .: "title"
 
 instance AnsiPretty Comment where
-  ansiPretty = gprettyWith (prettyOpts "_comment")
+  ansiPretty = gAnsiPrettyWith (prettyOpts "_comment")
 
 data MailAddress = MailAddress
   { _mailAddress     :: !Text
@@ -125,11 +132,11 @@ instance FromJSON Mail where
          <*> obj .: "replyTo"
 
 instance AnsiPretty Mail where
-  ansiPretty = gprettyWith (prettyOpts "_mail")
+  ansiPretty = gAnsiPrettyWith (prettyOpts "_mail")
 
 data MessageEvent = EventMessage
                   | EventStatus
-                  | EventComment
+                  | EventComment  -- ^ This message type is likely to change in the near future.
                   | EventAction
                   | EventTagChange
                   | EventMessageEdit
@@ -162,7 +169,7 @@ messageEventFromString = flip lookup messageEventLookupTable
 
 data MessageContent = MTMessage String
                     | MTStatus String
-                    | MTComment Comment
+                    | MTComment Comment -- ^ This message type is likely to change in the near future.
                     | MTAction Value
                     | MTTagChange Value
                     | MTMessageEdit Value
@@ -231,4 +238,4 @@ instance FromJSON Message where
               <*> obj .: "id"
 
 instance AnsiPretty Message where
-  ansiPretty = gprettyWith (prettyOpts "_msg")
+  ansiPretty = gAnsiPrettyWith (prettyOpts "_msg")

@@ -12,8 +12,7 @@ import Control.Applicative
 import Control.DeepSeq
 import Data.Aeson
 import Data.Hashable
-
-import Chat.Flowdock.REST.Pretty
+import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 -- | Opaque URL received from the API.
 newtype ApiUrl res = ApiUrl String

@@ -15,9 +15,9 @@ import Data.Hashable
 import Data.Text
 import GHC.Generics as GHC
 import Generics.SOP as SOP
+import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 import Chat.Flowdock.REST.Internal
-import Chat.Flowdock.REST.Pretty
 
 data User = User
   { _userId'      :: !UserId
@@ -46,7 +46,7 @@ instance FromJSON User where
          <*> obj .: "website"
 
 instance AnsiPretty User where
-  ansiPretty = gprettyWith (prettyOpts "_user")
+  ansiPretty = gAnsiPrettyWith (prettyOpts "_user")
 
 -- | 'User' like structures.
 class UserLike u where

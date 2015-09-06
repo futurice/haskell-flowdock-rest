@@ -13,10 +13,10 @@ import Data.Monoid
 import Data.Text as T
 import GHC.Generics as GHC
 import Generics.SOP as SOP
+import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.Organisation
-import Chat.Flowdock.REST.Pretty
 
 data FlowAccessMode = FAMInvintation
                     | FAMLink
@@ -68,7 +68,7 @@ instance FromJSON FlowOrg where
             <*> obj .: "url"
 
 instance AnsiPretty FlowOrg where
-  ansiPretty = gprettyWith (prettyOpts "_fo")
+  ansiPretty = gAnsiPrettyWith (prettyOpts "_fo")
 
 instance OrgLike FlowOrg where
   orgId = foId
@@ -109,4 +109,4 @@ instance FromJSON Flow where
          <*> obj .: "access_mode"
 
 instance AnsiPretty Flow where
-  ansiPretty = gprettyWith (prettyOpts "_flow")
+  ansiPretty = gAnsiPrettyWith (prettyOpts "_flow")

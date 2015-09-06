@@ -57,10 +57,10 @@ library
       Chat.Flowdock.REST.Internal
       Chat.Flowdock.REST.Message
       Chat.Flowdock.REST.Organisation
-      Chat.Flowdock.REST.Pretty
       Chat.Flowdock.REST.Request
       Chat.Flowdock.REST.URLs
       Chat.Flowdock.REST.User
+      Text.PrettyPrint.ANSI.Leijen.AnsiPretty
   default-language: Haskell2010
 
 test-suite flowdock-rest-test

@@ -18,10 +18,10 @@ import Data.Hashable
 import Data.Text
 import GHC.Generics as GHC
 import Generics.SOP as SOP
+import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.User
-import Chat.Flowdock.REST.Pretty
 
 data OrgUser = OrgUser
   { _ouId       :: !UserId
@@ -52,7 +52,7 @@ instance FromJSON OrgUser where
             <*> obj .: "admin"
 
 instance AnsiPretty OrgUser where
-  ansiPretty = gprettyWith (prettyOpts "_ou")
+  ansiPretty = gAnsiPrettyWith (prettyOpts "_ou")
 
 instance UserLike OrgUser where
   userId = ouId
@@ -94,7 +94,7 @@ instance FromJSON Organisation where
                  <*> obj .: "users"
 
 instance AnsiPretty Organisation where
-  ansiPretty = gprettyWith (prettyOpts "_org")
+  ansiPretty = gAnsiPrettyWith (prettyOpts "_org")
 
 -- | 'Organisation' like structures
 class OrgLike o where
