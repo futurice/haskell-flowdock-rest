@@ -18,9 +18,9 @@ import Data.Tagged
 import Network.HTTP.Client hiding (httpLbs)
 import Network.HTTP.Client.TLS
 import Options.Applicative
-import Text.PrettyPrint.ANSI.Leijen hiding ((<>), (<$>))
 
 import Chat.Flowdock.REST
+import Chat.Flowdock.REST.Pretty
 
 stringTrim :: String -> String
 stringTrim = r . ltrim . r . ltrim
@@ -38,7 +38,7 @@ data Command a = Command
   }
 
 data SomeCommand where
-  SomeCommand :: (FromJSON a, Pretty a) => Command a -> SomeCommand
+  SomeCommand :: (FromJSON a, AnsiPretty a) => Command a -> SomeCommand
 
 throwDecode :: (MonadThrow m, FromJSON a) => LBS.ByteString -> m a
 throwDecode bs = case eitherDecode bs of
@@ -47,7 +47,7 @@ throwDecode bs = case eitherDecode bs of
 
 --  mgr <- newManager tlsManagerSettings
 
-commandM :: forall a m . (FromJSON a, Pretty a, MonadThrow m, MonadIO m, MonadHTTP m) => Command a -> m ()
+commandM :: forall a m . (FromJSON a, AnsiPretty a, MonadThrow m, MonadIO m, MonadHTTP m) => Command a -> m ()
 commandM (Command req outputJson) = do
   token <- liftIO readAuthToken
   let req' = authenticateRequest token $ unTagged req
@@ -57,7 +57,7 @@ commandM (Command req outputJson) = do
     then do jsonRes <- throwDecode (responseBody res) :: m Value
             liftIO $ LBS.putStr $ encodePretty jsonRes
     else do valueRes <- throwDecode (responseBody res) :: m a
-            liftIO $ putDoc $ pretty valueRes
+            liftIO $ putDoc $ ansiPretty valueRes
             liftIO $ Prelude.putChar '\n'
 
 httpIO :: CachingT (HttpT IO) a -> IO a

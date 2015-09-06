@@ -51,8 +51,8 @@ instance FromJSON OrgUser where
             <*> obj .:? "website"
             <*> obj .: "admin"
 
-instance Pretty OrgUser where
-  pretty = gprettyWith (prettyOpts "_ou")
+instance AnsiPretty OrgUser where
+  ansiPretty = gprettyWith (prettyOpts "_ou")
 
 instance UserLike OrgUser where
   userId = ouId
@@ -93,8 +93,8 @@ instance FromJSON Organisation where
                  <*> obj .: "url"
                  <*> obj .: "users"
 
-instance Pretty Organisation where
-  pretty = gprettyWith (prettyOpts "_org")
+instance AnsiPretty Organisation where
+  ansiPretty = gprettyWith (prettyOpts "_org")
 
 -- | 'Organisation' like structures
 class OrgLike o where

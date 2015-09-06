@@ -12,7 +12,8 @@ import Control.Applicative
 import Control.DeepSeq
 import Data.Aeson
 import Data.Hashable
-import Text.PrettyPrint.ANSI.Leijen as PP hiding ((<>), (<$>))
+
+import Chat.Flowdock.REST.Pretty
 
 -- | Opaque URL received from the API.
 newtype ApiUrl res = ApiUrl String
@@ -27,8 +28,8 @@ instance Hashable (ApiUrl res) where
 instance FromJSON (ApiUrl res) where
   parseJSON v = ApiUrl <$> parseJSON v
 
-instance Pretty (ApiUrl res) where
-  pretty (ApiUrl url) = pretty url
+instance AnsiPretty (ApiUrl res) where
+  ansiPretty (ApiUrl url) = ansiPretty url
 
 newtype Identifier a res = Identifier a
   deriving (Eq, Ord, Show)
@@ -42,8 +43,8 @@ instance Hashable a => Hashable (Identifier a res) where
 instance FromJSON a => FromJSON (Identifier a res) where
   parseJSON v = Identifier <$> parseJSON v
 
-instance Pretty a => Pretty (Identifier a res) where
-  pretty (Identifier a) = pretty a
+instance AnsiPretty a => AnsiPretty (Identifier a res) where
+  ansiPretty (Identifier a) = ansiPretty a
 
 mkIdentifier :: a -> Identifier a res
 mkIdentifier = Identifier
@@ -85,5 +86,5 @@ instance Hashable (ParamName res) where
 instance FromJSON (ParamName res) where
   parseJSON v = ParamName <$> parseJSON v
 
-instance Pretty (ParamName res) where
-  pretty (ParamName param) = pretty param
+instance AnsiPretty (ParamName res) where
+  ansiPretty (ParamName param) = ansiPretty param

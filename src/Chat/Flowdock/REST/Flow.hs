@@ -34,10 +34,10 @@ instance FromJSON FlowAccessMode where
           p x               = fail $ "Invalid flow access mode: " <> T.unpack x
 
 
-instance Pretty FlowAccessMode where
-  pretty FAMInvintation   = text "invintation"
-  pretty FAMLink          = text "link"
-  pretty FAMOrganisation  = text "organisation"
+instance AnsiPretty FlowAccessMode where
+  ansiPretty FAMInvintation   = text "invintation"
+  ansiPretty FAMLink          = text "link"
+  ansiPretty FAMOrganisation  = text "organisation"
 
 data FlowOrg = FlowOrg
   { _foId        :: !OrganisationId
@@ -67,8 +67,8 @@ instance FromJSON FlowOrg where
             <*> obj .: "active"
             <*> obj .: "url"
 
-instance Pretty FlowOrg where
-  pretty = gprettyWith (prettyOpts "_fo")
+instance AnsiPretty FlowOrg where
+  ansiPretty = gprettyWith (prettyOpts "_fo")
 
 instance OrgLike FlowOrg where
   orgId = foId
@@ -108,5 +108,5 @@ instance FromJSON Flow where
          <*> obj .: "web_url"
          <*> obj .: "access_mode"
 
-instance Pretty Flow where
-  pretty = gprettyWith (prettyOpts "_flow")
+instance AnsiPretty Flow where
+  ansiPretty = gprettyWith (prettyOpts "_flow")

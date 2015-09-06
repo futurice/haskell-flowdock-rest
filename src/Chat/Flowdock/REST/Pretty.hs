@@ -4,8 +4,10 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE RankNTypes #-}
--- | This module should probably live somewhere else, contains helpers to define 'Pretty' instances.
+-- | This module should probably live somewhere else (in own package).
 module Chat.Flowdock.REST.Pretty (
+  -- * Class
+  AnsiPretty(..),
   -- * Generic
   gpretty,
   gprettyWith,
@@ -23,22 +25,52 @@ import Data.Text as T
 import Data.Monoid ((<>))
 import Data.Time
 import Generics.SOP
-import Text.PrettyPrint.ANSI.Leijen as PP hiding ((<>), (<$>), semiBraces)
+import Text.PrettyPrint.ANSI.Leijen as PP hiding ((<>), (<$>), semiBraces, Pretty)
+
+class AnsiPretty a where
+  ansiPretty :: a -> Doc
+
+  ansiPrettyList :: [a] -> Doc
+  ansiPrettyList = encloseSep (dullgreen lbracket) (dullgreen rbracket) (dullgreen colon) . fmap ansiPretty
 
 semiBraces :: [Doc] -> Doc
-semiBraces = encloseSep (blue lbrace) (blue rbrace) (blue semi)
+semiBraces = encloseSep (dullblue lbrace) (dullblue rbrace) (dullblue semi)
 
-prettyField :: Pretty a => String -> a -> Doc
-prettyField name value = magenta (text name) <+> blue equals <+> pretty value
+prettyField :: AnsiPretty a => String -> a -> Doc
+prettyField name value = black (text name) <+> blue equals <+> ansiPretty value
 
 prettyRecord :: String -> [Doc] -> Doc
-prettyRecord name fields = hang 2 (green (text name) </> semiBraces fields)
+prettyRecord name fields = hang 2 (cyan (text name) </> semiBraces fields)
 
-instance Pretty Text where
-  pretty = pretty . T.unpack
+instance AnsiPretty Integer where
+  ansiPretty = dullyellow . integer
 
-instance Pretty UTCTime where
-  pretty = pretty . show
+instance AnsiPretty Int where
+  ansiPretty = dullyellow . int
+
+instance AnsiPretty Doc where
+  ansiPretty = id
+
+instance AnsiPretty Bool where
+  ansiPretty True = dullyellow $ string "True"
+  ansiPretty False = dullyellow $ string "False"
+
+instance AnsiPretty Char where
+  ansiPretty c = string [c]
+  ansiPrettyList = string
+
+instance AnsiPretty a => AnsiPretty [a] where
+  ansiPretty = ansiPrettyList
+
+instance AnsiPretty a => AnsiPretty (Maybe a) where
+  ansiPretty (Just x) = ansiPretty x
+  ansiPretty Nothing  = dullcyan (string "Nothing")
+
+instance AnsiPretty Text where
+  ansiPretty = ansiPretty . T.unpack
+
+instance AnsiPretty UTCTime where
+  ansiPretty = ansiPretty . show
 
 data PrettyOpts = PrettyOpts
   { poPrettyField :: FieldName -> Doc -> Doc
@@ -61,22 +93,22 @@ prettyOpts prefix = defPrettyOpts { poPrettyField = poPrettyField defPrettyOpts 
         dropTrailingPrime (x:xs)  = x : dropTrailingPrime xs
 
 
-gprettyWith :: forall a. (Generic a, HasDatatypeInfo a, All2 Pretty (Code a)) => PrettyOpts -> a -> Doc
+gprettyWith :: forall a. (Generic a, HasDatatypeInfo a, All2 AnsiPretty (Code a)) => PrettyOpts -> a -> Doc
 gprettyWith opts x = gprettyS opts (from x) (datatypeInfo (Proxy :: Proxy a))
 
-gpretty :: forall a. (Generic a, HasDatatypeInfo a, All2 Pretty (Code a)) => a -> Doc
+gpretty :: forall a. (Generic a, HasDatatypeInfo a, All2 AnsiPretty (Code a)) => a -> Doc
 gpretty = gprettyWith defPrettyOpts
 
-gprettyS :: (All2 Pretty xss) => PrettyOpts -> SOP I xss -> DatatypeInfo xss -> Doc
-gprettyS _opts (SOP (Z (I x :* Nil))) (Newtype _ _ _)  = pretty x
+gprettyS :: (All2 AnsiPretty xss) => PrettyOpts -> SOP I xss -> DatatypeInfo xss -> Doc
+gprettyS _opts (SOP (Z (I x :* Nil))) (Newtype _ _ _)  = ansiPretty x
 gprettyS  opts (SOP (Z xs)) (ADT _ _ (ci :* Nil)) = poPrettyRecord opts (constructorName ci) (gprettyP opts xs (fieldInfo ci))
 gprettyS _opts (SOP (Z _ )) _ = error "gprettyS: redundant Z case"
 gprettyS  opts (SOP (S xss)) (ADT m d (_ :* cis)) = gprettyS opts (SOP xss) (ADT m d cis)
 gprettyS _opts (SOP (S _)) _  = error "gprettyS: redundant S case"
 
-gprettyP :: (All Pretty xs) => PrettyOpts -> NP I xs -> NP FieldInfo xs -> [Doc]
+gprettyP :: (All AnsiPretty xs) => PrettyOpts -> NP I xs -> NP FieldInfo xs -> [Doc]
 gprettyP _opts Nil Nil = []
-gprettyP  opts (I x :* xs) (FieldInfo fieldName :* fis) = poPrettyField opts fieldName (pretty x) : gprettyP opts xs fis
+gprettyP  opts (I x :* xs) (FieldInfo fieldName :* fis) = poPrettyField opts fieldName (ansiPretty x) : gprettyP opts xs fis
 gprettyP _opts _ _ = error "gprettyP: redundant case"
 
 constructorName :: ConstructorInfo a -> ConstructorName

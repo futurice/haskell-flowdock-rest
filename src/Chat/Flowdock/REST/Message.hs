@@ -67,8 +67,8 @@ instance FromJSON Comment where
     Comment <$> obj .: "text"
             <*> obj .: "title"
 
-instance Pretty Comment where
-  pretty = gprettyWith (prettyOpts "_comment")
+instance AnsiPretty Comment where
+  ansiPretty = gprettyWith (prettyOpts "_comment")
 
 data MailAddress = MailAddress
   { _mailAddress     :: !Text
@@ -88,9 +88,9 @@ instance FromJSON MailAddress where
     MailAddress <$> obj .: "address"
                 <*> obj .:? "name"
 
-instance Pretty MailAddress where
-  pretty (MailAddress addr Nothing)     = text . T.unpack $ addr
-  pretty (MailAddress addr (Just name)) = text . T.unpack $ name <> " <" <> addr <> ">"
+instance AnsiPretty MailAddress where
+  ansiPretty (MailAddress addr Nothing)     = text . T.unpack $ addr
+  ansiPretty (MailAddress addr (Just name)) = text . T.unpack $ name <> " <" <> addr <> ">"
 
 
 data Mail = Mail
@@ -121,8 +121,8 @@ instance FromJSON Mail where
          <*> obj .: "bcc"
          <*> obj .: "replyTo"
 
-instance Pretty Mail where
-  pretty = gprettyWith (prettyOpts "_mail")
+instance AnsiPretty Mail where
+  ansiPretty = gprettyWith (prettyOpts "_mail")
 
 data MessageContent = MTMessage String
                     | MTStatus
@@ -154,11 +154,11 @@ instance FromJSON MessageContent where
       _         -> fail $ "Invalid message type: " <> event
 
 
-instance Pretty MessageContent where
-  pretty (MTMessage msg) = text "message:" <+> text msg
-  pretty (MTComment com) = pretty com
-  pretty (MTMail mail)   = pretty mail
-  pretty m = text . show $ m
+instance AnsiPretty MessageContent where
+  ansiPretty (MTMessage msg) = text "message:" <+> text msg
+  ansiPretty (MTComment com) = ansiPretty com
+  ansiPretty (MTMail mail)   = ansiPretty mail
+  ansiPretty m = text . show $ m
 
 data Message = Message
   { _msgContent    :: !MessageContent
@@ -188,5 +188,5 @@ instance FromJSON Message where
               <*> obj .: "flow"
               <*> obj .: "id"
 
-instance Pretty Message where
-  pretty = gprettyWith (prettyOpts "_msg")
+instance AnsiPretty Message where
+  ansiPretty = gprettyWith (prettyOpts "_msg")
