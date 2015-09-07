@@ -33,6 +33,7 @@ executable flowdock-rest-cli
     , base64-bytestring
     , bytestring
     , deepseq
+    , directory
     , exceptions
     , hashable >= 1.2
     , http-client

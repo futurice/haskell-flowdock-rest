@@ -19,6 +19,7 @@ dependencies:
   - base64-bytestring
   - bytestring
   - deepseq
+  - directory
   - exceptions
   - hashable >= 1.2
   - http-client
@@ -32,6 +33,7 @@ dependencies:
   - binary-orphans >=0.1.1
   - binary-tagged
   - flowdock-rest ==0.0.0.0
+  - path
 
 executables:
   flowdock-grep:

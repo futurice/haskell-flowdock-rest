@@ -7,7 +7,7 @@ import Network.HTTP.Client
 -- | Authentication token.
 --
 -- See <https://www.flowdock.com/account/tokens> for your token.
-newtype AuthToken = AuthToken String
+newtype AuthToken = AuthToken { getAuthToken :: String }
   deriving (Show)
 
 -- | Add authorisation information to the request
