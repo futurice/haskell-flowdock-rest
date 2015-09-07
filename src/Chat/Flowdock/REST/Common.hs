@@ -1,8 +1,8 @@
 module Chat.Flowdock.REST.Common (
-  FlowId,
-  MessageId,
-  UserId,
   OrganisationId,
+  FlowId,
+  UserId,
+  MessageId,
   mkIdentifier,
   ApiUrl,
   ParamName,
@@ -10,3 +10,7 @@ module Chat.Flowdock.REST.Common (
   ) where
 
 import Chat.Flowdock.REST.Internal
+import Chat.Flowdock.REST.User
+import Chat.Flowdock.REST.Flow
+import Chat.Flowdock.REST.Organisation
+import Chat.Flowdock.REST.Message

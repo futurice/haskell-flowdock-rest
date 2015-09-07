@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Chat.Flowdock.REST.Internal
   ( ApiUrl(..)
   , Identifier(..)
@@ -5,13 +6,15 @@ module Chat.Flowdock.REST.Internal
   , getIdentifier
   , ParamName(..)
   , mkParamName
-  , FlowId, MessageId, UserId, OrganisationId
   ) where
 
 import Control.Applicative
 import Control.DeepSeq
 import Data.Aeson
+import Data.Binary.Orphans
+import Data.Binary.Tagged
 import Data.Hashable
+import Data.Proxy
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 -- | Opaque URL received from the API.
@@ -23,6 +26,10 @@ instance NFData (ApiUrl res) where
 
 instance Hashable (ApiUrl res) where
   hashWithSalt salt (ApiUrl url) = hashWithSalt salt url
+
+instance Binary (ApiUrl res) where
+  put (ApiUrl url) = put url
+  get = ApiUrl <$> get
 
 instance FromJSON (ApiUrl res) where
   parseJSON v = ApiUrl <$> parseJSON v
@@ -39,6 +46,13 @@ instance NFData a => NFData (Identifier a res) where
 instance Hashable a => Hashable (Identifier a res) where
   hashWithSalt salt (Identifier x) = hashWithSalt salt x
 
+instance Binary a => Binary (Identifier a res) where
+  put (Identifier x) = put x
+  get = Identifier <$> get
+
+instance HasStructuralInfo a => HasStructuralInfo (Identifier a res) where
+  structuralInfo _ = NominalNewtype "Identifier" $ structuralInfo (Proxy :: Proxy a)
+
 instance FromJSON a => FromJSON (Identifier a res) where
   parseJSON v = Identifier <$> parseJSON v
 
@@ -50,24 +64,6 @@ mkIdentifier = Identifier
 
 getIdentifier :: Identifier a res -> a
 getIdentifier (Identifier x) = x
-
--- Non exported tags
-data Flow
-data Message
-data User
-data Organisation
-
--- | Opaque Organisation identifier
-type FlowId = Identifier String Flow
-
--- | Opaque Message identifiert
-type MessageId = Identifier Integer Message
-
--- | Opaque User identifier
-type UserId = Identifier Integer User
-
--- | Opaque Organisation identifier
-type OrganisationId = Identifier Integer Organisation
 
 -- | Semi-opaque parameterised name, used to construct requests
 newtype ParamName res = ParamName String
@@ -81,6 +77,10 @@ instance NFData (ParamName res) where
 
 instance Hashable (ParamName res) where
   hashWithSalt salt (ParamName param) = hashWithSalt salt param
+
+instance Binary (ParamName res) where
+  put (ParamName param) = put param
+  get = ParamName <$> get
 
 instance FromJSON (ParamName res) where
   parseJSON v = ParamName <$> parseJSON v

@@ -18,7 +18,9 @@ dependencies:
   - base >= 4.7 && <4.9
   - aeson
   - ansi-wl-pprint
-  - base64-bytestring
+  - binary
+  - binary-orphans
+  - binary-tagged
   - bytestring
   - deepseq
   - exceptions
@@ -30,6 +32,7 @@ dependencies:
   - tagged
   - time
   - text
+  - unordered-containers
 
 library:
   source-dirs: src

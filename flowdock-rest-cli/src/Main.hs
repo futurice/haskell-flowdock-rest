@@ -20,7 +20,7 @@ import Network.HTTP.Client.TLS
 import Options.Applicative
 
 import Chat.Flowdock.REST
-import Chat.Flowdock.REST.Pretty
+import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 stringTrim :: String -> String
 stringTrim = r . ltrim . r . ltrim

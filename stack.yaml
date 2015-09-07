@@ -3,6 +3,8 @@ packages:
 - '.'
 - 'flowdock-rest-cli'
 - 'monad-http'
+- 'binary-tagged'
 extra-deps:
 - file-embed-0.0.9
+- binary-orphans-0.1.0.0
 resolver: lts-2.22

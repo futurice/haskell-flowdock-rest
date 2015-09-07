@@ -2,7 +2,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RecordWildCards #-}
-module Chat.Flowdock.REST.Flow where
+module Chat.Flowdock.REST.Flow (
+  Flow(..),
+  FlowId,
+  flowId,
+  flowAccessMode,
+  flowName,
+  flowOrganisation,
+  flowParamName,
+  flowUrl,
+  flowWebUrl,
+  FlowAccessMode(..),
+  FlowOrg(..),
+  ) where
 
 import Control.Applicative
 import Control.DeepSeq
@@ -90,6 +102,9 @@ data Flow = Flow
   , _flowAccessMode   :: !FlowAccessMode
   }
   deriving (Eq, Ord, Show, GHC.Generic)
+
+-- | Opaque Flow identifier
+type FlowId = Identifier String Flow
 
 makeLenses ''Flow
 

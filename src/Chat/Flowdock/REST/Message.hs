@@ -5,6 +5,7 @@
 module Chat.Flowdock.REST.Message (
   -- * Message
   Message(..),
+  MessageId,
   msgContent,
   msgTags,
   msgCreatedAt,
@@ -49,6 +50,7 @@ import Control.Applicative
 import Control.DeepSeq
 import Control.Lens
 import Data.Aeson
+import Data.Binary.Orphans
 import Data.Hashable
 import Data.Monoid
 import Data.Text as T
@@ -58,6 +60,8 @@ import Generics.SOP as SOP
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 import Chat.Flowdock.REST.Internal
+import Chat.Flowdock.REST.User
+import Chat.Flowdock.REST.Flow
 
 data Comment = Comment
   { _commentText  :: !Text
@@ -71,6 +75,7 @@ instance NFData Comment
 instance Hashable Comment
 instance SOP.Generic Comment
 instance SOP.HasDatatypeInfo Comment
+instance Binary Comment
 
 instance FromJSON Comment where
   parseJSON = withObject "Comment" $ \obj ->
@@ -92,6 +97,7 @@ instance NFData MailAddress
 instance Hashable MailAddress
 instance SOP.Generic MailAddress
 instance SOP.HasDatatypeInfo MailAddress
+instance Binary MailAddress
 
 instance FromJSON MailAddress where
   parseJSON = withObject "MailAddress" $ \obj ->
@@ -120,6 +126,7 @@ instance NFData Mail
 instance Hashable Mail
 instance SOP.Generic Mail
 instance SOP.HasDatatypeInfo Mail
+instance Binary Mail
 
 instance FromJSON Mail where
   parseJSON = withObject "Mail" $ \obj ->
@@ -182,6 +189,9 @@ data MessageContent = MTMessage String
 
 instance NFData MessageContent
 instance Hashable MessageContent
+instance SOP.Generic MessageContent
+instance SOP.HasDatatypeInfo MessageContent
+instance Binary MessageContent
 
 makePrisms ''MessageContent
 
@@ -213,10 +223,13 @@ data Message = Message
   , _msgCreatedAt  :: !UTCTime
   , _msgEditedAt   :: !(Maybe UTCTime)
   , _msgFlowId     :: !FlowId
-  , _msgUser       :: !String -- TODO
+  , _msgUser       :: !UserId
   , _msgId         :: !MessageId
   }
   deriving (Eq, Show, GHC.Generic)
+
+-- | Opaque User identifier
+type MessageId = Identifier Integer Message
 
 makeLenses ''Message
 
@@ -224,6 +237,7 @@ instance NFData Message
 -- instance Hashable Message
 instance SOP.Generic Message
 instance SOP.HasDatatypeInfo Message
+instance Binary Message
 
 instance FromJSON Message where
   parseJSON v = do
@@ -234,7 +248,7 @@ instance FromJSON Message where
               <*> obj .: "created_at"
               <*> obj .:? "edited_at"
               <*> obj .: "flow"
-              <*> obj .: "user"
+              <*> (mkIdentifier . read <$> obj.: "user") -- User field is string, in future there might be integral `user_id` field.
               <*> obj .: "id"
 
 instance AnsiPretty Message where

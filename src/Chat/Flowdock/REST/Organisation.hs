@@ -4,6 +4,7 @@
 {-# LANGUAGE RecordWildCards #-}
 module Chat.Flowdock.REST.Organisation (
   Organisation(..),
+  OrganisationId,
   OrgLike(..),
   orgUsers,
   OrgUser(..),
@@ -74,6 +75,9 @@ data Organisation = Organisation
   , _orgUsers      :: ![OrgUser]
   }
   deriving (Eq, Ord, Show, GHC.Generic)
+
+-- | Opaque Organisation identifier
+type OrganisationId = Identifier Integer Organisation
 
 makeLenses ''Organisation
 

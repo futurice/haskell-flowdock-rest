@@ -3,5 +3,6 @@ packages:
 - '.'
 - 'flowdock-rest-cli'
 - 'monad-http'
-extra-deps: []
-resolver: lts-3.3
+extra-deps:
+- binary-orphans-0.1.0.0
+resolver: lts-3.8

@@ -37,7 +37,9 @@ library
       base >= 4.7 && <4.9
     , aeson
     , ansi-wl-pprint
-    , base64-bytestring
+    , binary
+    , binary-orphans
+    , binary-tagged
     , bytestring
     , deepseq
     , exceptions
@@ -49,6 +51,7 @@ library
     , tagged
     , time
     , text
+    , unordered-containers
   exposed-modules:
       Chat.Flowdock.REST
       Chat.Flowdock.REST.Auth
@@ -73,7 +76,9 @@ test-suite flowdock-rest-test
       base >= 4.7 && <4.9
     , aeson
     , ansi-wl-pprint
-    , base64-bytestring
+    , binary
+    , binary-orphans
+    , binary-tagged
     , bytestring
     , deepseq
     , exceptions
@@ -85,6 +90,7 @@ test-suite flowdock-rest-test
     , tagged
     , time
     , text
+    , unordered-containers
     , flowdock-rest
     , tasty
     , tasty-quickcheck
