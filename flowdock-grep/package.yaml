@@ -1,0 +1,39 @@
+name: flowdock-grep
+version: 0.0.0.0
+synopsis: Grep flowdock backlog
+description: |
+  Write me
+author: Oleg Grenrus <oleg.grenrus@iki.fi>
+maintainer: Oleg Grenrus <oleg.grenrus@iki.fi>
+license: BSD3
+github: futurice/haskell-flowdock-rest
+category: Web
+
+ghc-options: -Wall
+
+dependencies:
+  - base >= 4.7 && <4.9
+  - aeson
+  - aeson-pretty
+  - ansi-wl-pprint
+  - base64-bytestring
+  - bytestring
+  - deepseq
+  - exceptions
+  - hashable >= 1.2
+  - http-client
+  - http-client-tls
+  - lens
+  - monad-http
+  - tagged
+  - text
+  - optparse-applicative
+  - transformers
+  - binary-orphans >=0.1.1
+  - binary-tagged
+  - flowdock-rest ==0.0.0.0
+
+executables:
+  flowdock-grep:
+    main: Main.hs
+    source-dirs: src
