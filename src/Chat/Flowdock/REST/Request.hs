@@ -10,10 +10,13 @@ module Chat.Flowdock.REST.Request (
   -- ** Options
   MessageOptions,
   defMessageOptions,
-  msgOptEvent,
+  msgOptEvents,
   msgOptLimit,
   msgOptUntilId,
   msgOptSinceId,
+  msgOptSorting,
+  Sorting(..),
+  sortingToString,
   ) where
 
 import Control.Applicative
@@ -22,6 +25,8 @@ import Control.Monad
 import Control.Monad.Catch
 import Data.ByteString
 import Data.Maybe
+import Data.List as L
+import Data.List.NonEmpty
 import Data.String
 import Data.Tagged
 import Network.HTTP.Client
@@ -42,16 +47,24 @@ import Chat.Flowdock.REST.URLs
 parseApiUrl :: MonadThrow m => ApiUrl a -> m (Tagged a Request)
 parseApiUrl (ApiUrl url) = Tagged `liftM` parseUrl url
 
+data Sorting = Descending | Ascending
+  deriving (Eq, Ord, Read, Show, Enum, Bounded)
+
+sortingToString :: Sorting -> String
+sortingToString Descending = "desc"
+sortingToString Ascending = "asc"
+
 data MessageOptions = MessageOptions
-  { _msgOptEvent :: Maybe MessageEvent
+  { _msgOptEvents :: [MessageEvent]
   , _msgOptLimit :: Maybe Int
   , _msgOptUntilId :: Maybe MessageId
   , _msgOptSinceId :: Maybe MessageId
+  , _msgOptSorting :: Sorting
   }
   deriving (Eq, Ord, Show)
 
 defMessageOptions :: MessageOptions
-defMessageOptions = MessageOptions Nothing Nothing Nothing Nothing
+defMessageOptions = MessageOptions [] Nothing Nothing Nothing Descending
 
 makeLenses ''MessageOptions
 
@@ -59,8 +72,9 @@ messagesRequest :: MonadThrow m => ParamName Organisation -> ParamName Flow -> M
 messagesRequest org flow MessageOptions {..} = do
   req <- parseApiUrl (messagesUrl org flow)
   return $ setQueryString queryString <$> req
-  where queryString = catMaybes [ (\e -> ("event",    Just $ fromString $ messageEventToString e)) <$> _msgOptEvent
-                                , (\l -> ("limit",    Just $ fromString $ show l))                 <$> _msgOptLimit
-                                , (\u -> ("until_id", Just $ fromString $ show $ getIdentifier u)) <$> _msgOptUntilId
-                                , (\s -> ("since_id", Just $ fromString $ show $ getIdentifier s)) <$> _msgOptSinceId
+  where queryString = catMaybes [ (\es -> ("event",    Just $ fromString $ L.intercalate "," $ toList $ fmap messageEventToString es)) <$> nonEmpty _msgOptEvents
+                                , (\l  -> ("limit",    Just $ fromString $ show l))                 <$> _msgOptLimit
+                                , (\u  -> ("until_id", Just $ fromString $ show $ getIdentifier u)) <$> _msgOptUntilId
+                                , (\s  -> ("since_id", Just $ fromString $ show $ getIdentifier s)) <$> _msgOptSinceId
+                                , Just ("sort", Just $ fromString $ sortingToString _msgOptSorting)
                                 ]

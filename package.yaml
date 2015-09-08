@@ -29,6 +29,7 @@ dependencies:
   - http-client
   - http-client-tls
   - lens
+  - semigroups
   - tagged
   - time
   - text

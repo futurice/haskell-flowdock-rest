@@ -174,15 +174,15 @@ messageEventLookupTable = fmap f [minBound..maxBound]
 messageEventFromString :: String -> Maybe MessageEvent
 messageEventFromString = flip lookup messageEventLookupTable
 
-data MessageContent = MTMessage String
+data MessageContent = MTMessage !Text
                     | MTStatus String
-                    | MTComment Comment -- ^ This message type is likely to change in the near future.
-                    | MTAction Value
-                    | MTTagChange Value
-                    | MTMessageEdit Value
-                    | MTActivityUser Value
-                    | MTFile Value
-                    | MTMail Mail
+                    | MTComment !Comment -- ^ This message type is likely to change in the near future.
+                    | MTAction !Value
+                    | MTTagChange !Value
+                    | MTMessageEdit !Value
+                    | MTActivityUser !Value
+                    | MTFile !Value
+                    | MTMail !Mail
                     | MTActivity -- No action
                     | MTDiscussion
   deriving (Eq, Show, GHC.Generic)
@@ -212,7 +212,7 @@ instance FromJSON MessageContent where
 
 
 instance AnsiPretty MessageContent where
-  ansiPretty (MTMessage msg) = text "message:" <+> text msg
+  ansiPretty (MTMessage msg) = text "message:" <+> ansiPretty msg
   ansiPretty (MTComment com) = ansiPretty com
   ansiPretty (MTMail mail)   = ansiPretty mail
   ansiPretty m = text . show $ m

@@ -48,6 +48,7 @@ library
     , http-client
     , http-client-tls
     , lens
+    , semigroups
     , tagged
     , time
     , text
@@ -87,6 +88,7 @@ test-suite flowdock-rest-test
     , http-client
     , http-client-tls
     , lens
+    , semigroups
     , tagged
     , time
     , text

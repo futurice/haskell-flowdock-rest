@@ -1,26 +1,30 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Main (main) where
 
---import Control.Lens
+import Control.Lens
 import Control.Monad
---import Control.Monad.Caching
 import Control.Monad.Catch
---import Control.Monad.HTTP
---import Control.Monad.IO.Class
---import Data.Aeson
+import Data.Aeson
+import Data.Binary.Orphans
+import Data.Binary.Tagged
+import Data.ByteString.Lazy as LBS
 import Data.Char
-import Data.Maybe (isNothing)
-import Data.Monoid
---import Data.Tagged
-import Data.Typeable
 import Data.List as L
---import Network.HTTP.Client hiding (httpLbs)
---import Network.HTTP.Client.TLS
+import Data.Maybe (isNothing, mapMaybe)
+import Data.Monoid
+import Data.Tagged
+import Data.Text as T
+import Data.Time
+import Data.Typeable
+import GHC.Generics
+import Network.HTTP.Client
+import Network.HTTP.Client.TLS
 import Options.Applicative
-import System.Environment
-import System.Directory
 import Path
+import System.Directory
+import System.Environment
 
 import Chat.Flowdock.REST
 
@@ -74,9 +78,9 @@ writeAuthToken dir token = do
 data Opts = Opts
   { optsToken :: AuthToken
   , _optsOffline :: Bool
-  , _optsOrganisation :: ParamName Organisation
-  , _optsFlow :: ParamName Flow
-  , _optsNeedle :: String
+  , optsOrganisation :: ParamName Organisation
+  , optsFlow :: ParamName Flow
+  , optsNeedle :: String
   }
   deriving Show
 
@@ -96,13 +100,44 @@ optsParser maybeToken =
        <*> switch (long "offline" <> help "Consider only already downloaded logs")
        <*> paramArgument (metavar "org" <> help "Organisation slug, check it from the web url: wwww.flowdock.com/app/ORG/FLOW/")
        <*> paramArgument (metavar "flow" <> help "Flow slug")
-       <*> fmap (L.intercalate " ") (some $ strArgument (metavar "needle"))
+       <*> fmap (L.intercalate " ") (many $ strArgument (metavar "needle"))
+
+baseMessageOptions :: Maybe Integer -> MessageOptions
+baseMessageOptions sinceId =
+  defMessageOptions & msgOptEvents   .~ [EventMessage, EventComment]
+                    & msgOptLimit    .~ Just 100
+                    & msgOptSinceId  .~ (mkIdentifier <$> sinceId)
+                    & msgOptSorting  .~ Ascending
+
+data Row = Row
+  { rowUser       :: UserId
+  , rowCreatedAt  :: UTCTime
+  , rowText       :: Text
+  }
+  deriving (Eq, Ord, Show, Generic)
+
+messageToRow :: Message -> Maybe Row
+messageToRow msg = Row (msg ^. msgUser) (msg ^. msgCreatedAt) <$> messageContentToRow (msg ^. msgContent)
+  where messageContentToRow (MTMessage text)  = Just text
+        messageContentToRow (MTComment comm)  = Just (comm ^. commentText)
+        messageContentToRow _                 = Nothing
+
+grepRow :: Text -> [Row] -> IO ()
+grepRow needle rows = mapM_ p rows
+  where p row = when (needle `T.isInfixOf` (rowText row))
+                     (print row)
 
 main' :: Path Abs Dir -> Bool -> Opts -> IO ()
 main' settingsDirectory writeToken opts = do
   let token = optsToken opts
   when writeToken $ writeAuthToken settingsDirectory token
   print opts
+  mgr <- newManager tlsManagerSettings
+  req <- untag <$> messagesRequest (optsOrganisation opts) (optsFlow opts) (baseMessageOptions Nothing)
+  let req' = authenticateRequest token req
+  res <- httpLbs req' mgr
+  rows <- mapMaybe messageToRow <$> throwDecode (responseBody res) :: IO [Row]
+  grepRow (T.pack $ optsNeedle opts) rows
 
 main :: IO ()
 main = do
@@ -111,3 +146,8 @@ main = do
   let opts = info (helper <*> optsParser token) (fullDesc <> progDesc "Try --help if unsure" <> header "flowdock-grep - grep flowdock logs")
   execParser opts >>= main' settingsDirectory (isNothing token)
 
+-- Helpers
+throwDecode :: (MonadThrow m, FromJSON a) => LBS.ByteString -> m a
+throwDecode bs = case eitherDecode bs of
+  Right x   -> return x
+  Left err  -> error $ "throwDecode: " <> err

@@ -12,7 +12,7 @@ import Data.Aeson
 import Data.Aeson.Encode.Pretty
 import Data.ByteString.Lazy as LBS
 import Data.Char
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, maybeToList)
 import Data.Monoid
 import Data.Tagged
 import Network.HTTP.Client hiding (httpLbs)
@@ -104,7 +104,7 @@ commands = subparser $ mconcat
 
 messageOptions :: Maybe MessageEvent -> Maybe Int -> Maybe Integer -> MessageOptions
 messageOptions event limit untilId =
-  defMessageOptions & msgOptEvent .~ event
+  defMessageOptions & msgOptEvents .~ maybeToList event
                     & msgOptLimit .~ limit
                     & msgOptUntilId .~ (mkIdentifier <$> untilId)
 

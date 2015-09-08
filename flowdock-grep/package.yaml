@@ -28,6 +28,7 @@ dependencies:
   - monad-http
   - tagged
   - text
+  - time
   - optparse-applicative
   - transformers
   - binary-orphans >=0.1.1

@@ -72,6 +72,9 @@ newtype ParamName res = ParamName String
 mkParamName :: String -> ParamName res
 mkParamName = ParamName
 
+getParamName :: ParamName res -> String
+getParamName (ParamName param) = param
+
 instance NFData (ParamName res) where
   rnf (ParamName param) = rnf param
 
