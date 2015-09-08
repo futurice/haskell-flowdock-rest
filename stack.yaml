@@ -3,10 +3,10 @@ packages:
 - '.'
 - 'flowdock-rest-cli'
 - 'monad-http'
-- 'binary-tagged'
 - 'flowdock-grep'
 extra-deps:
 - file-embed-0.0.9
 - binary-orphans-0.1.1.0
+- binary-tagged-0.1.0.0
 - path-0.5.2
 resolver: lts-2.22

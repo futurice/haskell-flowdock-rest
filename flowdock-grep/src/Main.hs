@@ -74,9 +74,9 @@ readAuthToken dir = readAuthToken' `catch` onIOError Nothing
 
 writeAuthToken :: Path Abs Dir -> AuthToken -> IO ()
 writeAuthToken dir token = do
-  let path = toFilePath (dir </> tokenRelPath)
+  let filepath = toFilePath (dir </> tokenRelPath)
   createDirectoryIfMissing True (toFilePath dir)
-  Prelude.writeFile path (getAuthToken token)
+  Prelude.writeFile filepath (getAuthToken token)
 
 data Opts = Opts
   { optsToken :: AuthToken
@@ -114,8 +114,8 @@ baseMessageOptions sinceId =
 
 data Row = Row
   { rowMessageId  :: MessageId
-  , rowUser       :: UserId
-  , rowCreatedAt  :: UTCTime
+  , _rowUser       :: UserId
+  , _rowCreatedAt  :: UTCTime
   , rowText       :: Text
   }
   deriving (Eq, Ord, Show, Generic)
@@ -171,14 +171,31 @@ mkUserMap :: [User] -> UserMap
 mkUserMap = HM.fromList . fmap f
   where f u = (u ^. userId, u)
 
-fetchUsers :: AuthToken -> Bool -> IO UserMap
-fetchUsers token offline = do
+-- | Fetch users from API
+fetchUsers :: AuthToken -> IO UserMap
+fetchUsers token = do
   mgr <- newManager tlsManagerSettings
   req <- untag <$> usersRequest
   let req' = authenticateRequest token req
   res <- httpLbs req' mgr
   users <- throwDecode (responseBody res)
   return $ mkUserMap users
+
+readUsers :: Path Abs Dir -> AuthToken -> Bool -> IO UserMap
+readUsers settingsDirectory token offline = do
+  let filepath = settingsDirectory </> usersRelPath
+  let readCached = do eUsers <- taggedDecodeFileOrFail (toFilePath filepath)
+                      case eUsers of
+                        Left (_, err) -> do Prelude.putStrLn $ "Error: corrupted user file: " <> err <> "; removing..."
+                                            removeFile (toFilePath filepath)
+                                            return HM.empty
+                        Right x  -> return x
+  let fetchUsers' = do users <- fetchUsers token
+                       taggedEncodeFile (toFilePath filepath) users
+                       return users
+  if offline
+     then readCached `catch` onIOError HM.empty
+     else readCached `catch` withIOError (const fetchUsers')
 
 main' :: Path Abs Dir -> Bool -> Opts -> IO ()
 main' settingsDirectory writeToken opts = do
@@ -190,7 +207,7 @@ main' settingsDirectory writeToken opts = do
   when writeToken $ writeAuthToken settingsDirectory token
 
   -- Users
-  users <- fetchUsers token (optsOffline opts)
+  users <- readUsers settingsDirectory token (optsOffline opts)
 
   -- Cache file
   cachePath <- parseCachePath settingsDirectory org flow
@@ -231,3 +248,6 @@ throwDecode bs = case eitherDecode bs of
 
 onIOError :: a -> IOError -> IO a
 onIOError x _ = return x
+
+withIOError :: (IOError -> a) -> IOError -> a
+withIOError = id

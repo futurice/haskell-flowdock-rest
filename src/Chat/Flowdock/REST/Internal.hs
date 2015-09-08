@@ -54,6 +54,8 @@ instance Binary a => Binary (Identifier a res) where
 instance HasStructuralInfo a => HasStructuralInfo (Identifier a res) where
   structuralInfo _ = NominalNewtype "Identifier" $ structuralInfo (Proxy :: Proxy a)
 
+instance HasSemanticVersion (Identifier a res)
+
 instance FromJSON a => FromJSON (Identifier a res) where
   parseJSON v = Identifier <$> parseJSON v
 

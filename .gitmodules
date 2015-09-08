@@ -1,7 +1,3 @@
 [submodule "monad-http"]
 	path = monad-http
 	url = git@github.com:futurice/haskell-monad-http.git
-[submodule "binary-tagged"]
-	path = binary-tagged
-	url = git@github.com:phadej/binary-tagged.git
-	branch = wip
