@@ -6,6 +6,7 @@ module Chat.Flowdock.REST.Internal
   , getIdentifier
   , ParamName(..)
   , mkParamName
+  , getParamName
   ) where
 
 import Control.Applicative

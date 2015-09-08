@@ -7,6 +7,7 @@ module Chat.Flowdock.REST.Common (
   ApiUrl,
   ParamName,
   mkParamName,
+  getParamName,
   ) where
 
 import Chat.Flowdock.REST.Internal
