@@ -30,12 +30,14 @@ dependencies:
   - http-client-tls
   - lens
   - monad-http
+  - old-locale
   - optparse-applicative
   - path
   - tagged
   - text
   - time
   - transformers
+  - unordered-containers
   - flowdock-rest ==0.0.0.0
 
 executables:

@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Main (main) where
 
@@ -14,12 +15,15 @@ import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.ByteString.Lazy as LBS
 import Data.Char
+import Data.HashMap.Strict as HM
 import Data.List as L
 import Data.Maybe (isNothing, isJust, mapMaybe)
 import Data.Monoid
 import Data.Tagged
 import Data.Text as T
+import Data.Text.IO as T
 import Data.Time
+import System.Locale
 import Data.Typeable
 import GHC.Generics
 import Network.HTTP.Client
@@ -142,15 +146,39 @@ readRows filepath  = do
   let g = (,) <$> many get <*>Data.Binary.Get.isEmpty :: Get ([BinaryTagged (SemanticVersion Row) Row], Bool)
   return $ first (fmap binaryUntag') $ runGet g contents
 
-grepRow :: Text -> [Row] -> IO (Maybe Row)
-grepRow needle rows = go rows
+grepRow :: UserMap -> Text -> [Row] -> IO (Maybe Row)
+grepRow users needle rows = go rows
   where go []           = return Nothing
         go [row]         = p row >> return (Just row)
         go (row:rows')  = p row >> go rows'
 
         p :: Row -> IO ()
-        p row = when (needle `T.isInfixOf` (rowText row))
-                     (print row)
+        p row = when (needle `T.isInfixOf` (rowText row)) (printRow users row)
+
+printRow :: UserMap -> Row -> IO ()
+printRow users (Row _ uid t msg) = do
+  tzone <- getTimeZone t
+  let unick = maybe "<ghost>" (^. userNick) $ HM.lookup uid users
+  let stamp = formatTime timeLocale "%H:%M:%S" (utcToLocalTime tzone t)
+  T.putStrLn $ T.pack stamp <> " <" <> unick <> "> " <> msg
+
+timeLocale :: TimeLocale
+timeLocale = defaultTimeLocale
+
+type UserMap = HM.HashMap UserId User
+
+mkUserMap :: [User] -> UserMap
+mkUserMap = HM.fromList . fmap f
+  where f u = (u ^. userId, u)
+
+fetchUsers :: AuthToken -> Bool -> IO UserMap
+fetchUsers token offline = do
+  mgr <- newManager tlsManagerSettings
+  req <- untag <$> usersRequest
+  let req' = authenticateRequest token req
+  res <- httpLbs req' mgr
+  users <- throwDecode (responseBody res)
+  return $ mkUserMap users
 
 main' :: Path Abs Dir -> Bool -> Opts -> IO ()
 main' settingsDirectory writeToken opts = do
@@ -161,28 +189,30 @@ main' settingsDirectory writeToken opts = do
   -- Save auth token
   when writeToken $ writeAuthToken settingsDirectory token
 
+  -- Users
+  users <- fetchUsers token (optsOffline opts)
+
   -- Cache file
   cachePath <- parseCachePath settingsDirectory org flow
 
   -- Read from cache
   (rows, allRead) <- readRows cachePath `catch` onIOError ([], True)
-  lastRow <- grepRow (T.pack $ optsNeedle opts) rows
+  lastRow <- grepRow users (T.pack $ optsNeedle opts) rows
   when (not allRead) $ Prelude.putStrLn "Error: corrupted cache file, removing..." >> removeFile (toFilePath cachePath)
 
   -- Read from API
   when (not $ optsOffline opts) $ do
     mgr <- newManager tlsManagerSettings
-    loop mgr token org flow cachePath (T.pack $ optsNeedle opts) lastRow
+    onlineLoop mgr token org flow cachePath users (T.pack $ optsNeedle opts) lastRow
 
-loop :: Manager -> AuthToken -> ParamName Organisation -> ParamName Flow -> Path Abs File -> Text -> Maybe Row -> IO ()
-loop mgr token org flow cachePath needle = go
+onlineLoop :: Manager -> AuthToken -> ParamName Organisation -> ParamName Flow -> Path Abs File -> UserMap -> Text -> Maybe Row -> IO ()
+onlineLoop mgr token org flow cachePath users needle = go
   where go lastRow = do req <- untag <$> messagesRequest org flow (baseMessageOptions $ rowMessageId <$> lastRow)
                         let req' = authenticateRequest token req
-                        print lastRow
                         res <- httpLbs req' mgr
                         rows <- mapMaybe messageToRow <$> throwDecode (responseBody res) :: IO [Row]
                         saveRows cachePath rows
-                        lastRow' <- grepRow needle rows
+                        lastRow' <- grepRow users needle rows
                         -- Loop only if we got something
                         when (isJust lastRow') $ go lastRow'
 

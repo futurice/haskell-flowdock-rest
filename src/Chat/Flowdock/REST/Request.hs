@@ -7,6 +7,9 @@ module Chat.Flowdock.REST.Request (
   -- * Messages
   -- | See <https://www.flowdock.com/api/messages>
   messagesRequest,
+  -- * Users
+  -- | See <https://www.flowdock.com/api/users>
+  usersRequest,
   -- ** Options
   MessageOptions,
   defMessageOptions,
@@ -78,3 +81,6 @@ messagesRequest org flow MessageOptions {..} = do
                                 , (\s  -> ("since_id", Just $ fromString $ show $ getIdentifier s)) <$> _msgOptSinceId
                                 , Just ("sort", Just $ fromString $ sortingToString _msgOptSorting)
                                 ]
+
+usersRequest :: MonadThrow m => m (Tagged [User] Request)
+usersRequest = parseApiUrl usersUrl
