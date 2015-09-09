@@ -1,4 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
+-- |
+-- Module      : Chat.Flowdock.REST.Auth
+-- License     : BSD3
+-- Maintainer  : Oleg Grenrus <oleg.grenrus@iki.fi>
 module Chat.Flowdock.REST.Auth where
 
 import Data.ByteString.Char8 as BS8
@@ -7,7 +11,7 @@ import Network.HTTP.Client
 -- | Authentication token.
 --
 -- See <https://www.flowdock.com/account/tokens> for your token.
-newtype AuthToken = AuthToken String
+newtype AuthToken = AuthToken { getAuthToken :: String }
   deriving (Show)
 
 -- | Add authorisation information to the request

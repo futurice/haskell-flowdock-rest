@@ -1,8 +1,14 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE RecordWildCards #-}
+-- |
+-- Module      : Chat.Flowdock.REST.Organisation
+-- License     : BSD3
+-- Maintainer  : Oleg Grenrus <oleg.grenrus@iki.fi>
 module Chat.Flowdock.REST.Organisation (
   Organisation(..),
+  OrganisationId,
   OrgLike(..),
   orgUsers,
   OrgUser(..),
@@ -13,28 +19,37 @@ import Control.Applicative
 import Control.DeepSeq
 import Control.Lens
 import Data.Aeson
+import Data.Binary.Orphans
+import Data.Binary.Tagged
 import Data.Hashable
 import Data.Text
-import GHC.Generics
+import GHC.Generics as GHC
+import Generics.SOP as SOP
+import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.User
 
 data OrgUser = OrgUser
-  { _ouId :: !UserId
-  , _ouNick :: !Text
-  , _ouName :: !Text
-  , _ouEmail :: !Text
-  , _ouAvatar :: !Text
-  , _ouWebsite :: !(Maybe Text)
-  , _ouAdmin :: !Bool
+  { _ouId       :: !UserId
+  , _ouNick     :: !Text
+  , _ouName     :: !Text
+  , _ouEmail    :: !Text
+  , _ouAvatar   :: !Text
+  , _ouWebsite  :: !(Maybe Text)
+  , _ouAdmin    :: !Bool
   }
-  deriving (Eq, Ord, Show, Generic)
-  
+  deriving (Eq, Ord, Show, GHC.Generic)
+
 makeLenses ''OrgUser
 
 instance NFData OrgUser
 instance Hashable OrgUser
+instance SOP.Generic OrgUser
+instance SOP.HasDatatypeInfo OrgUser
+instance Binary OrgUser
+instance HasStructuralInfo OrgUser
+instance HasSemanticVersion OrgUser
 
 instance FromJSON OrgUser where
   parseJSON = withObject "User" $ \obj ->
@@ -46,6 +61,9 @@ instance FromJSON OrgUser where
             <*> obj .:? "website"
             <*> obj .: "admin"
 
+instance AnsiPretty OrgUser where
+  ansiPretty = gAnsiPrettyWith (prettyOpts "_ou")
+
 instance UserLike OrgUser where
   userId = ouId
   userNick = ouNick
@@ -54,22 +72,31 @@ instance UserLike OrgUser where
   userAvatar = ouAvatar
   userWebsite = ouWebsite
 
+
 data Organisation = Organisation
-  { _orgId' :: !OrganisationId
+  { _orgId'        :: !OrganisationId
   , _orgParamName' :: !(ParamName Organisation)
-  , _orgName' :: !Text
+  , _orgName'      :: !Text
   , _orgUserLimit' :: !Int
   , _orgUserCount' :: !Int
-  , _orgActive' :: !Bool
-  , _orgUrl' :: !(ApiUrl Organisation)
-  , _orgUsers :: ![OrgUser]
+  , _orgActive'    :: !Bool
+  , _orgUrl'       :: !(ApiUrl Organisation)
+  , _orgUsers      :: ![OrgUser]
   }
-  deriving (Eq, Ord, Show, Generic)
+  deriving (Eq, Ord, Show, GHC.Generic)
+
+-- | Opaque Organisation identifier
+type OrganisationId = Identifier Integer Organisation
 
 makeLenses ''Organisation
 
 instance NFData Organisation
 instance Hashable Organisation
+instance SOP.Generic Organisation
+instance SOP.HasDatatypeInfo Organisation
+instance Binary Organisation
+instance HasStructuralInfo Organisation
+instance HasSemanticVersion Organisation
 
 instance FromJSON Organisation where
   parseJSON = withObject "Organisation" $ \obj ->
@@ -82,7 +109,10 @@ instance FromJSON Organisation where
                  <*> obj .: "url"
                  <*> obj .: "users"
 
+instance AnsiPretty Organisation where
+  ansiPretty = gAnsiPrettyWith (prettyOpts "_org")
 
+-- | 'Organisation' like structures
 class OrgLike o where
   orgId :: Lens' o OrganisationId
   orgName :: Lens' o Text
