@@ -1,7 +1,11 @@
 name: flowdock-rest
-version: 0.0.0.0
-synopsis: Flowdock REST API, currently offering only non-destructive operations.
-description: Bindings to Flowdock REST api.
+version: 0.1.0.0
+synopsis: Flowdock REST API
+description: |
+  Bindings to the <https://www.flowdock.com/api/rest Flowdock REST API>.
+
+  Currently there are only non-destructive operations.
+  Also not all types are written out.
 author: Oleg Grenrus <oleg.grenrus@iki.fi>
 maintainer: Oleg Grenrus <oleg.grenrus@iki.fi>
 license: BSD3
