@@ -1,9 +1,26 @@
-module Chat.Flowdock.REST.Internal where
+{-# LANGUAGE ScopedTypeVariables #-}
+-- |
+-- Module      : Chat.Flowdock.REST.Internal
+-- License     : BSD3
+-- Maintainer  : Oleg Grenrus <oleg.grenrus@iki.fi>
+module Chat.Flowdock.REST.Internal
+  ( ApiUrl(..)
+  , Identifier(..)
+  , mkIdentifier
+  , getIdentifier
+  , ParamName(..)
+  , mkParamName
+  , getParamName
+  ) where
 
 import Control.Applicative
 import Control.DeepSeq
 import Data.Aeson
+import Data.Binary.Orphans
+import Data.Binary.Tagged
 import Data.Hashable
+import Data.Proxy
+import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 -- | Opaque URL received from the API.
 newtype ApiUrl res = ApiUrl String
@@ -15,51 +32,51 @@ instance NFData (ApiUrl res) where
 instance Hashable (ApiUrl res) where
   hashWithSalt salt (ApiUrl url) = hashWithSalt salt url
 
+instance Binary (ApiUrl res) where
+  put (ApiUrl url) = put url
+  get = ApiUrl <$> get
+
 instance FromJSON (ApiUrl res) where
   parseJSON v = ApiUrl <$> parseJSON v
 
+instance AnsiPretty (ApiUrl res) where
+  ansiPretty (ApiUrl url) = ansiPretty url
 
--- | Opaque Organisation identifier
-newtype FlowId = FlowId String
+instance HasStructuralInfo (ApiUrl res) where
+  structuralInfo _ = NominalNewtype "ApiUrl" $ structuralInfo (Proxy :: Proxy String)
+
+instance HasSemanticVersion (ApiUrl res)
+
+-- | Semi-opaque identifier.
+newtype Identifier a res = Identifier a
   deriving (Eq, Ord, Show)
 
-instance NFData FlowId where
-  rnf (FlowId fid) = rnf fid
+instance NFData a => NFData (Identifier a res) where
+  rnf (Identifier x) = rnf x
 
-instance Hashable FlowId where
-  hashWithSalt salt (FlowId fid) = hashWithSalt salt fid
+instance Hashable a => Hashable (Identifier a res) where
+  hashWithSalt salt (Identifier x) = hashWithSalt salt x
 
-instance FromJSON FlowId where
-  parseJSON v = FlowId <$> parseJSON v
+instance Binary a => Binary (Identifier a res) where
+  put (Identifier x) = put x
+  get = Identifier <$> get
 
+instance HasStructuralInfo a => HasStructuralInfo (Identifier a res) where
+  structuralInfo _ = NominalNewtype "Identifier" $ structuralInfo (Proxy :: Proxy a)
 
--- | Opaque User identifier
-newtype UserId = UserId Integer
-  deriving (Eq, Ord, Show)
+instance HasSemanticVersion (Identifier a res)
 
-instance NFData UserId where
-  rnf (UserId uid) = rnf uid
+instance FromJSON a => FromJSON (Identifier a res) where
+  parseJSON v = Identifier <$> parseJSON v
 
-instance Hashable UserId where
-  hashWithSalt salt (UserId uid) = hashWithSalt salt uid
+instance AnsiPretty a => AnsiPretty (Identifier a res) where
+  ansiPretty (Identifier a) = ansiPretty a
 
-instance FromJSON UserId where
-  parseJSON v = UserId <$> parseJSON v
+mkIdentifier :: a -> Identifier a res
+mkIdentifier = Identifier
 
-
--- | Opaque Organisation identifier
-newtype OrganisationId = OrganisationId Integer
-  deriving (Eq, Ord, Show)
-
-instance NFData OrganisationId where
-  rnf (OrganisationId oid) = rnf oid
-
-instance Hashable OrganisationId where
-  hashWithSalt salt (OrganisationId oid) = hashWithSalt salt oid
-
-instance FromJSON OrganisationId where
-  parseJSON v = OrganisationId <$> parseJSON v
-
+getIdentifier :: Identifier a res -> a
+getIdentifier (Identifier x) = x
 
 -- | Semi-opaque parameterised name, used to construct requests
 newtype ParamName res = ParamName String
@@ -68,11 +85,26 @@ newtype ParamName res = ParamName String
 mkParamName :: String -> ParamName res
 mkParamName = ParamName
 
+getParamName :: ParamName res -> String
+getParamName (ParamName param) = param
+
 instance NFData (ParamName res) where
   rnf (ParamName param) = rnf param
 
 instance Hashable (ParamName res) where
   hashWithSalt salt (ParamName param) = hashWithSalt salt param
 
+instance Binary (ParamName res) where
+  put (ParamName param) = put param
+  get = ParamName <$> get
+
 instance FromJSON (ParamName res) where
   parseJSON v = ParamName <$> parseJSON v
+
+instance AnsiPretty (ParamName res) where
+  ansiPretty (ParamName param) = ansiPretty param
+
+instance HasStructuralInfo (ParamName res) where
+  structuralInfo _ = NominalNewtype "ParamName" $ structuralInfo (Proxy :: Proxy String)
+
+instance HasSemanticVersion (ParamName res)

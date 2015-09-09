@@ -6,5 +6,3 @@ dist
 .cabal-sandbox
 cabal.sandbox.config
 .stack-work
-
-.flowdock-rest-api-token
