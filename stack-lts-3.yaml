@@ -1,6 +1,7 @@
 flags: {}
 packages:
 - '.'
-- 'flowdock-rest-cli'
-extra-deps: []
-resolver: lts-3.3
+extra-deps:
+- binary-orphans-0.1.1.0
+- binary-tagged-0.1.1.0
+resolver: lts-3.4
