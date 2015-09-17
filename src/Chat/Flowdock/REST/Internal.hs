@@ -1,4 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE RecordWildCards #-}
 -- |
 -- Module      : Chat.Flowdock.REST.Internal
 -- License     : BSD3
@@ -11,6 +15,8 @@ module Chat.Flowdock.REST.Internal
   , ParamName(..)
   , mkParamName
   , getParamName
+  , Tag(..)
+  , getTag
   ) where
 
 import Control.Applicative
@@ -20,6 +26,8 @@ import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable
 import Data.Proxy
+import Data.Text
+import GHC.Generics
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 -- | Opaque URL received from the API.
@@ -108,3 +116,20 @@ instance HasStructuralInfo (ParamName res) where
   structuralInfo _ = NominalNewtype "ParamName" $ structuralInfo (Proxy :: Proxy String)
 
 instance HasSemanticVersion (ParamName res)
+
+-- Tag
+
+newtype Tag = Tag Text
+  deriving (Eq, Ord, Show, Generic)
+
+getTag :: Tag -> Text
+getTag (Tag tag) = tag
+
+instance NFData Tag
+instance Hashable Tag
+instance Binary Tag
+instance FromJSON Tag where
+  parseJSON v = Tag <$> parseJSON v
+instance AnsiPretty Tag
+instance HasStructuralInfo Tag
+instance HasSemanticVersion Tag

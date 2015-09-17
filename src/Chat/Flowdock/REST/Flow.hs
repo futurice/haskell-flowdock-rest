@@ -91,8 +91,7 @@ instance FromJSON FlowOrg where
             <*> obj .: "active"
             <*> obj .: "url"
 
-instance AnsiPretty FlowOrg where
-  ansiPretty = gAnsiPrettyWith (prettyOpts "_fo")
+instance AnsiPretty FlowOrg
 
 instance OrgLike FlowOrg where
   orgId = foId
@@ -138,5 +137,4 @@ instance FromJSON Flow where
          <*> obj .: "web_url"
          <*> obj .: "access_mode"
 
-instance AnsiPretty Flow where
-  ansiPretty = gAnsiPrettyWith (prettyOpts "_flow")
+instance AnsiPretty Flow

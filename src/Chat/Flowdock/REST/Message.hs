@@ -89,8 +89,7 @@ instance FromJSON Comment where
     Comment <$> obj .: "text"
             <*> obj .: "title"
 
-instance AnsiPretty Comment where
-  ansiPretty = gAnsiPrettyWith (prettyOpts "_comment")
+instance AnsiPretty Comment
 
 data MailAddress = MailAddress
   { _mailAddress     :: !Text
@@ -111,10 +110,7 @@ instance FromJSON MailAddress where
     MailAddress <$> obj .: "address"
                 <*> obj .:? "name"
 
-instance AnsiPretty MailAddress where
-  ansiPretty (MailAddress addr Nothing)     = text . T.unpack $ addr
-  ansiPretty (MailAddress addr (Just name)) = text . T.unpack $ name <> " <" <> addr <> ">"
-
+instance AnsiPretty MailAddress
 
 data Mail = Mail
   { _mailSubject :: !Text
@@ -145,8 +141,7 @@ instance FromJSON Mail where
          <*> obj .: "bcc"
          <*> obj .: "replyTo"
 
-instance AnsiPretty Mail where
-  ansiPretty = gAnsiPrettyWith (prettyOpts "_mail")
+instance AnsiPretty Mail
 
 data MessageEvent = EventMessage
                   | EventStatus
@@ -226,7 +221,7 @@ instance AnsiPretty MessageContent where
 
 data Message = Message
   { _msgContent    :: !MessageContent
-  , _msgTags       :: ![Text]
+  , _msgTags       :: ![Tag]
   , _msgCreatedAt  :: !UTCTime
   , _msgEditedAt   :: !(Maybe UTCTime)
   , _msgFlowId     :: !FlowId
@@ -258,5 +253,4 @@ instance FromJSON Message where
               <*> (mkIdentifier . read <$> obj.: "user") -- User field is string, in future there might be integral `user_id` field.
               <*> obj .: "id"
 
-instance AnsiPretty Message where
-  ansiPretty = gAnsiPrettyWith (prettyOpts "_msg")
+instance AnsiPretty Message
