@@ -23,6 +23,7 @@ import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable
 import Data.Text
+import Data.Vector
 import GHC.Generics as GHC
 import Generics.SOP as SOP
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
@@ -80,7 +81,7 @@ data Organisation = Organisation
   , _orgUserCount' :: !Int
   , _orgActive'    :: !Bool
   , _orgUrl'       :: !(ApiUrl Organisation)
-  , _orgUsers      :: ![OrgUser]
+  , _orgUsers      :: !(Vector OrgUser)
   }
   deriving (Eq, Ord, Show, GHC.Generic)
 
@@ -90,7 +91,7 @@ type OrganisationId = Identifier Integer Organisation
 makeLenses ''Organisation
 
 instance NFData Organisation
-instance Hashable Organisation
+--instance Hashable Organisation
 instance SOP.Generic Organisation
 instance SOP.HasDatatypeInfo Organisation
 instance Binary Organisation
