@@ -5,6 +5,12 @@
 -- Maintainer  : Oleg Grenrus <oleg.grenrus@iki.fi>
 --
 -- <https://www.flowdock.com/api/rest Flowdock REST api>
+--
+-- This module exports all functionality, except 'Chat.Flowdock.REST.IO' module.
+-- You probably want to import the latter qualified:
+--
+-- > import Chat.Flowdock.REST
+-- > import qualified Chat.Flowdock.REST.IO as FDIO 
 module Chat.Flowdock.REST (
   module Chat.Flowdock.REST.Auth,
   module Chat.Flowdock.REST.Common,
