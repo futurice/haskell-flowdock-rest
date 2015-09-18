@@ -60,6 +60,7 @@ import Data.Hashable
 import Data.Monoid
 import Data.Text as T
 import Data.Time
+import Data.Vector
 import GHC.Generics as GHC
 import Generics.SOP as SOP
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
@@ -89,8 +90,7 @@ instance FromJSON Comment where
     Comment <$> obj .: "text"
             <*> obj .: "title"
 
-instance AnsiPretty Comment where
-  ansiPretty = gAnsiPrettyWith (prettyOpts "_comment")
+instance AnsiPretty Comment
 
 data MailAddress = MailAddress
   { _mailAddress     :: !Text
@@ -111,26 +111,23 @@ instance FromJSON MailAddress where
     MailAddress <$> obj .: "address"
                 <*> obj .:? "name"
 
-instance AnsiPretty MailAddress where
-  ansiPretty (MailAddress addr Nothing)     = text . T.unpack $ addr
-  ansiPretty (MailAddress addr (Just name)) = text . T.unpack $ name <> " <" <> addr <> ">"
-
+instance AnsiPretty MailAddress
 
 data Mail = Mail
   { _mailSubject :: !Text
   , _mailContent :: !Text
-  , _mailTo      :: ![MailAddress]
-  , _mailFrom    :: ![MailAddress]
-  , _mailCc      :: ![MailAddress]
-  , _mailBcc     :: ![MailAddress]
-  , _mailReplyTo :: ![MailAddress]
+  , _mailTo      :: !(Vector MailAddress)
+  , _mailFrom    :: !(Vector MailAddress)
+  , _mailCc      :: !(Vector MailAddress)
+  , _mailBcc     :: !(Vector MailAddress)
+  , _mailReplyTo :: !(Vector MailAddress)
   }
   deriving (Eq, Ord, Show, GHC.Generic)
 
 makeLenses ''Mail
 
 instance NFData Mail
-instance Hashable Mail
+--instance Hashable Mail
 instance SOP.Generic Mail
 instance SOP.HasDatatypeInfo Mail
 instance Binary Mail
@@ -145,8 +142,7 @@ instance FromJSON Mail where
          <*> obj .: "bcc"
          <*> obj .: "replyTo"
 
-instance AnsiPretty Mail where
-  ansiPretty = gAnsiPrettyWith (prettyOpts "_mail")
+instance AnsiPretty Mail
 
 data MessageEvent = EventMessage
                   | EventStatus
@@ -195,7 +191,7 @@ data MessageContent = MTMessage !Text
   deriving (Eq, Show, GHC.Generic)
 
 instance NFData MessageContent
-instance Hashable MessageContent
+--instance Hashable MessageContent
 instance SOP.Generic MessageContent
 instance SOP.HasDatatypeInfo MessageContent
 instance Binary MessageContent
@@ -226,7 +222,7 @@ instance AnsiPretty MessageContent where
 
 data Message = Message
   { _msgContent    :: !MessageContent
-  , _msgTags       :: ![Text]
+  , _msgTags       :: !(Vector Tag)
   , _msgCreatedAt  :: !UTCTime
   , _msgEditedAt   :: !(Maybe UTCTime)
   , _msgFlowId     :: !FlowId
@@ -258,5 +254,4 @@ instance FromJSON Message where
               <*> (mkIdentifier . read <$> obj.: "user") -- User field is string, in future there might be integral `user_id` field.
               <*> obj .: "id"
 
-instance AnsiPretty Message where
-  ansiPretty = gAnsiPrettyWith (prettyOpts "_msg")
+instance AnsiPretty Message

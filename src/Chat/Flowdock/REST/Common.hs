@@ -12,6 +12,8 @@ module Chat.Flowdock.REST.Common (
   ParamName,
   mkParamName,
   getParamName,
+  Tag(..),
+  getTag,
   ) where
 
 import Chat.Flowdock.REST.Internal

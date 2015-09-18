@@ -23,6 +23,7 @@ import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable
 import Data.Text
+import Data.Vector
 import GHC.Generics as GHC
 import Generics.SOP as SOP
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
@@ -61,8 +62,7 @@ instance FromJSON OrgUser where
             <*> obj .:? "website"
             <*> obj .: "admin"
 
-instance AnsiPretty OrgUser where
-  ansiPretty = gAnsiPrettyWith (prettyOpts "_ou")
+instance AnsiPretty OrgUser
 
 instance UserLike OrgUser where
   userId = ouId
@@ -81,7 +81,7 @@ data Organisation = Organisation
   , _orgUserCount' :: !Int
   , _orgActive'    :: !Bool
   , _orgUrl'       :: !(ApiUrl Organisation)
-  , _orgUsers      :: ![OrgUser]
+  , _orgUsers      :: !(Vector OrgUser)
   }
   deriving (Eq, Ord, Show, GHC.Generic)
 
@@ -91,7 +91,7 @@ type OrganisationId = Identifier Integer Organisation
 makeLenses ''Organisation
 
 instance NFData Organisation
-instance Hashable Organisation
+--instance Hashable Organisation
 instance SOP.Generic Organisation
 instance SOP.HasDatatypeInfo Organisation
 instance Binary Organisation
@@ -109,8 +109,7 @@ instance FromJSON Organisation where
                  <*> obj .: "url"
                  <*> obj .: "users"
 
-instance AnsiPretty Organisation where
-  ansiPretty = gAnsiPrettyWith (prettyOpts "_org")
+instance AnsiPretty Organisation
 
 -- | 'Organisation' like structures
 class OrgLike o where

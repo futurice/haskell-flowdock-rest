@@ -58,8 +58,7 @@ instance FromJSON User where
          <*> obj .: "avatar"
          <*> obj .: "website"
 
-instance AnsiPretty User where
-  ansiPretty = gAnsiPrettyWith (prettyOpts "_user")
+instance AnsiPretty User
 
 -- | 'User' like structures.
 class UserLike u where
