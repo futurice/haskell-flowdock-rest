@@ -5,4 +5,5 @@ extra-deps:
 - file-embed-0.0.9
 - binary-orphans-0.1.1.0
 - binary-tagged-0.1.1.0
+- ansi-pretty-0.1.0.0
 resolver: lts-2.22
