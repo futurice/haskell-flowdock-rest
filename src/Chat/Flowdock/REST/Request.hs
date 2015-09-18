@@ -29,7 +29,7 @@ module Chat.Flowdock.REST.Request (
   -- * Users
   -- | See <https://www.flowdock.com/api/users>
   usersRequest,
-  orgUsersRequest,
+  organisationUsersRequest,
   flowUsersRequest,
   -- * Organisations
   -- | See <https://www.flowdock.com/api/organizations>
@@ -115,8 +115,8 @@ usersRequest = parseApiUrl usersUrl
 flowUsersRequest :: MonadThrow m => ParamName Organisation -> ParamName Flow -> m (Tagged [User] Request)
 flowUsersRequest org flow = parseApiUrl $ flowUsersUrl org flow
 
-orgUsersRequest :: MonadThrow m => ParamName Organisation -> m (Tagged [User] Request)
-orgUsersRequest org = parseApiUrl $ orgUsersUrl org
+organisationUsersRequest :: MonadThrow m => ParamName Organisation -> m (Tagged [User] Request)
+organisationUsersRequest org = parseApiUrl $ organisationUsersUrl org
 
 -- Organisations
 

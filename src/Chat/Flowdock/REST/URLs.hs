@@ -14,7 +14,7 @@ module Chat.Flowdock.REST.URLs (
   -- * Users
   -- | See <https://www.flowdock.com/api/users>
   usersUrl,
-  orgUsersUrl,
+  organisationUsersUrl,
   flowUsersUrl,
   -- * Organisations
   -- | See <https://www.flowdock.com/api/organizations>
@@ -55,8 +55,8 @@ usersUrl = mkUrl ["users"]
 flowUsersUrl :: ParamName Organisation -> ParamName Flow -> ApiUrl [User]
 flowUsersUrl (ParamName org) (ParamName flow) = mkUrl ["flows", org, flow, "users"]
 
-orgUsersUrl :: ParamName Organisation -> ApiUrl [User]
-orgUsersUrl (ParamName org) = mkUrl ["organizations", org, "users"]
+organisationUsersUrl :: ParamName Organisation -> ApiUrl [User]
+organisationUsersUrl (ParamName org) = mkUrl ["organizations", org, "users"]
 
 organisationsUrl :: ApiUrl [Organisation]
 organisationsUrl = mkUrl ["organizations"]
