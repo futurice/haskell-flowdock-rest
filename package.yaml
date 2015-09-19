@@ -20,7 +20,7 @@ ghc-options: -Wall
 
 dependencies:
   - base                  >=4.7   && <4.9
-  - aeson                 >=0.8   && <0.10
+  - aeson                 >=0.8   && <0.11
   - ansi-pretty           >=0.1   && <0.2
   - binary-orphans        >=0.1.1 && <0.2
   - binary-tagged         >=0.1.1 && <0.2
