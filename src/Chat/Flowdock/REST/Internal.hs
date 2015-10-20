@@ -21,7 +21,7 @@ module Chat.Flowdock.REST.Internal
 
 import Control.Applicative
 import Control.DeepSeq
-import Data.Aeson
+import Data.Aeson.Compat
 import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable

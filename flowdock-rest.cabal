@@ -1,4 +1,4 @@
--- This file has been generated from package.yaml by hpack version 0.7.1.
+-- This file has been generated from package.yaml by hpack version 0.8.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -39,6 +39,7 @@ library
   build-depends:
       base                  >=4.7   && <4.9
     , aeson                 >=0.8   && <0.11
+    , aeson-extra           >=0.2   && <0.3
     , ansi-pretty           >=0.1   && <0.2
     , binary-orphans        >=0.1.1 && <0.2
     , binary-tagged         >=0.1.1 && <0.2
@@ -78,6 +79,7 @@ test-suite flowdock-rest-test
   build-depends:
       base                  >=4.7   && <4.9
     , aeson                 >=0.8   && <0.11
+    , aeson-extra           >=0.2   && <0.3
     , ansi-pretty           >=0.1   && <0.2
     , binary-orphans        >=0.1.1 && <0.2
     , binary-tagged         >=0.1.1 && <0.2

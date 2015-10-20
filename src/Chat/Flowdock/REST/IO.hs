@@ -34,15 +34,11 @@ module Chat.Flowdock.REST.IO (
   organisation,
   ) where
 
+import           Control.Monad.Catch (MonadThrow(..))
 import           Control.Monad.IO.Class
-import           Data.Aeson (FromJSON(..), eitherDecode')
+import           Data.Aeson.Compat (FromJSON(..), decode')
 import           Data.Tagged (Tagged, untag)
 import           Network.HTTP.Client (httpLbs, responseBody, Manager, Request)
-
--- For throwDecode'
-import           Control.Monad.Catch (MonadThrow(..), Exception)
-import qualified Data.ByteString.Lazy as L
-import           Data.Typeable (Typeable)
 
 import           Chat.Flowdock.REST
 
@@ -50,7 +46,7 @@ performRequest :: (MonadIO m, MonadThrow m, FromJSON a) => Manager -> AuthToken 
 performRequest mgr token req = do
   let req' = authenticateRequest token (untag req)
   res <- liftIO $ httpLbs req' mgr
-  throwDecode' (responseBody res)
+  decode' (responseBody res)
 
 messages :: (MonadIO m, MonadThrow m) => Manager -> AuthToken -> ParamName Organisation -> ParamName Flow -> MessageOptions -> m [Message]
 messages mgr token org fl opts = performRequest mgr token =<< messagesRequest org fl opts
@@ -85,18 +81,3 @@ organisations mgr token = performRequest mgr token =<< organisationsRequest
 
 organisation :: (MonadIO m, MonadThrow m) => Manager -> AuthToken -> ParamName Organisation -> m Organisation
 organisation mgr token org = performRequest mgr token =<< organisationRequest org
-
--- Helpers
-
-newtype AesonException = AesonException String
-  deriving (Show, Typeable)
-
-instance Exception AesonException
-
-eitherAesonExc :: (MonadThrow m) => Either String a -> m a
-eitherAesonExc (Left err) = throwM (AesonException err)
-eitherAesonExc (Right x)  = return x
-
--- | Like 'decode' but in arbitrary 'MonadThrow'.
-throwDecode' :: (FromJSON a, MonadThrow m) => L.ByteString -> m a
-throwDecode' = eitherAesonExc . eitherDecode'

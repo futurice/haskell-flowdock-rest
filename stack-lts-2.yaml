@@ -6,4 +6,5 @@ extra-deps:
 - binary-orphans-0.1.1.0
 - binary-tagged-0.1.1.0
 - ansi-pretty-0.1.0.0
+- aeson-extra-0.2.1.0
 resolver: lts-2.22
