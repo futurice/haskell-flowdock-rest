@@ -53,7 +53,7 @@ module Chat.Flowdock.REST.Message (
 import Control.Applicative
 import Control.DeepSeq
 import Control.Lens
-import Data.Aeson
+import Data.Aeson.Compat
 import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable
