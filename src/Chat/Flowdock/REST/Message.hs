@@ -1,8 +1,8 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric      #-}
+{-# LANGUAGE OverloadedStrings  #-}
+{-# LANGUAGE RecordWildCards    #-}
+{-# LANGUAGE TemplateHaskell    #-}
 -- |
 -- Module      : Chat.Flowdock.REST.Message
 -- License     : BSD3
@@ -59,17 +59,17 @@ import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable
 import Data.Monoid
-import Data.Text as T
+import Data.Text                               as T
 import Data.Time
-import Data.Typeable (Typeable)
+import Data.Typeable                           (Typeable)
 import Data.Vector
-import GHC.Generics as GHC
-import Generics.SOP as SOP
+import Generics.SOP                            as SOP
+import GHC.Generics                            as GHC
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
+import Chat.Flowdock.REST.Flow
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.User
-import Chat.Flowdock.REST.Flow
 
 data Comment = Comment
   { _commentText  :: !Text
@@ -146,17 +146,19 @@ instance FromJSON Mail where
 
 instance AnsiPretty Mail
 
-data MessageEvent = EventMessage
-                  | EventStatus
-                  | EventComment  -- ^ This message type is likely to change in the near future.
-                  | EventAction
-                  | EventTagChange
-                  | EventMessageEdit
-                  | EventActivityUser
-                  | EventFile
-                  | EventMail
-                  | EventActivity
-                  | EventDiscussion
+data MessageEvent
+  = EventMessage
+  | EventStatus
+  | EventComment
+    -- ^ This message type is likely to change in the near future.
+  | EventAction
+  | EventTagChange
+  | EventMessageEdit
+  | EventActivityUser
+  | EventFile
+  | EventMail
+  | EventActivity
+  | EventDiscussion
   deriving (Eq, Ord, Show, Enum, Bounded, Typeable)
 
 messageEventToString :: MessageEvent -> String
@@ -179,17 +181,19 @@ messageEventLookupTable = fmap f [minBound..maxBound]
 messageEventFromString :: String -> Maybe MessageEvent
 messageEventFromString = flip lookup messageEventLookupTable
 
-data MessageContent = MTMessage !Text
-                    | MTStatus String
-                    | MTComment !Comment -- ^ This message type is likely to change in the near future.
-                    | MTAction !Value
-                    | MTTagChange !Value
-                    | MTMessageEdit !Value
-                    | MTActivityUser !Value
-                    | MTFile !Value
-                    | MTMail !Mail
-                    | MTActivity -- No action
-                    | MTDiscussion
+data MessageContent
+  = MTMessage !Text
+  | MTStatus String
+  | MTComment !Comment
+    -- ^ This message type is likely to change in the near future.
+  | MTAction !Value
+  | MTTagChange !Value
+  | MTMessageEdit !Value
+  | MTActivityUser !Value
+  | MTFile !Value
+  | MTMail !Mail
+  | MTActivity -- No action
+  | MTDiscussion
   deriving (Eq, Show, GHC.Generic, Typeable)
 
 instance NFData MessageContent
@@ -223,13 +227,13 @@ instance AnsiPretty MessageContent where
   ansiPretty m = text . show $ m
 
 data Message = Message
-  { _msgContent    :: !MessageContent
-  , _msgTags       :: !(Vector Tag)
-  , _msgCreatedAt  :: !UTCTime
-  , _msgEditedAt   :: !(Maybe UTCTime)
-  , _msgFlowId     :: !FlowId
-  , _msgUser       :: !UserId
-  , _msgId         :: !MessageId
+  { _msgContent   :: !MessageContent
+  , _msgTags      :: !(Vector Tag)
+  , _msgCreatedAt :: !UTCTime
+  , _msgEditedAt  :: !(Maybe UTCTime)
+  , _msgFlowId    :: !FlowId
+  , _msgUser      :: !UserId
+  , _msgId        :: !MessageId
   }
   deriving (Eq, Show, GHC.Generic, Typeable)
 
@@ -253,7 +257,9 @@ instance FromJSON Message where
               <*> obj .: "created_at"
               <*> obj .:? "edited_at"
               <*> obj .: "flow"
-              <*> (mkIdentifier . read <$> obj.: "user") -- User field is string, in future there might be integral `user_id` field.
+              -- User field is string,
+              -- in future there might be integral `user_id` field.
+              <*> (mkIdentifier . read <$> obj.: "user")
               <*> obj .: "id"
 
 instance AnsiPretty Message

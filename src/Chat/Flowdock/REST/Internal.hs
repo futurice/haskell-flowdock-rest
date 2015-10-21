@@ -1,9 +1,7 @@
+{-# LANGUAGE DeriveDataTypeable  #-}
+{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE DeriveDataTypeable #-}
 -- |
 -- Module      : Chat.Flowdock.REST.Internal
 -- License     : BSD3
@@ -28,7 +26,7 @@ import Data.Binary.Tagged
 import Data.Hashable
 import Data.Proxy
 import Data.Text
-import Data.Typeable (Typeable)
+import Data.Typeable                           (Typeable)
 import GHC.Generics
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
@@ -53,7 +51,8 @@ instance AnsiPretty (ApiUrl res) where
   ansiPretty (ApiUrl url) = ansiPretty url
 
 instance HasStructuralInfo (ApiUrl res) where
-  structuralInfo _ = NominalNewtype "ApiUrl" $ structuralInfo (Proxy :: Proxy String)
+  structuralInfo _ =
+    NominalNewtype "ApiUrl" $ structuralInfo (Proxy :: Proxy String)
 
 instance HasSemanticVersion (ApiUrl res)
 
@@ -72,7 +71,8 @@ instance Binary a => Binary (Identifier a res) where
   get = Identifier <$> get
 
 instance HasStructuralInfo a => HasStructuralInfo (Identifier a res) where
-  structuralInfo _ = NominalNewtype "Identifier" $ structuralInfo (Proxy :: Proxy a)
+  structuralInfo _ =
+    NominalNewtype "Identifier" $ structuralInfo (Proxy :: Proxy a)
 
 instance HasSemanticVersion (Identifier a res)
 
@@ -115,7 +115,8 @@ instance AnsiPretty (ParamName res) where
   ansiPretty (ParamName param) = ansiPretty param
 
 instance HasStructuralInfo (ParamName res) where
-  structuralInfo _ = NominalNewtype "ParamName" $ structuralInfo (Proxy :: Proxy String)
+  structuralInfo _ =
+    NominalNewtype "ParamName" $ structuralInfo (Proxy :: Proxy String)
 
 instance HasSemanticVersion (ParamName res)
 
