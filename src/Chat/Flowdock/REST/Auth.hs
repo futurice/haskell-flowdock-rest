@@ -1,13 +1,13 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE OverloadedStrings  #-}
 -- |
 -- Module      : Chat.Flowdock.REST.Auth
 -- License     : BSD3
 -- Maintainer  : Oleg Grenrus <oleg.grenrus@iki.fi>
 module Chat.Flowdock.REST.Auth where
 
-import Data.Typeable (Typeable)
 import Data.ByteString.Char8 as BS8
+import Data.Typeable         (Typeable)
 import Network.HTTP.Client
 
 -- | Authentication token.

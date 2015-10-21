@@ -1,8 +1,8 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric      #-}
+{-# LANGUAGE OverloadedStrings  #-}
+{-# LANGUAGE RecordWildCards    #-}
+{-# LANGUAGE TemplateHaskell    #-}
 -- |
 -- Module      : Chat.Flowdock.REST.Flow
 -- License     : BSD3
@@ -29,10 +29,10 @@ import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable
 import Data.Monoid
-import Data.Text as T
-import Data.Typeable (Typeable)
-import GHC.Generics as GHC
-import Generics.SOP as SOP
+import Data.Text                               as T
+import Data.Typeable                           (Typeable)
+import Generics.SOP                            as SOP
+import GHC.Generics                            as GHC
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 import Chat.Flowdock.REST.Internal
