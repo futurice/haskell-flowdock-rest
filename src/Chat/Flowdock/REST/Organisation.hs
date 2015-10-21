@@ -2,6 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 -- |
 -- Module      : Chat.Flowdock.REST.Organisation
 -- License     : BSD3
@@ -23,6 +24,7 @@ import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable
 import Data.Text
+import Data.Typeable (Typeable)
 import Data.Vector
 import GHC.Generics as GHC
 import Generics.SOP as SOP
@@ -40,7 +42,7 @@ data OrgUser = OrgUser
   , _ouWebsite  :: !(Maybe Text)
   , _ouAdmin    :: !Bool
   }
-  deriving (Eq, Ord, Show, GHC.Generic)
+  deriving (Eq, Ord, Show, GHC.Generic, Typeable)
 
 makeLenses ''OrgUser
 
@@ -83,7 +85,7 @@ data Organisation = Organisation
   , _orgUrl'       :: !(ApiUrl Organisation)
   , _orgUsers      :: !(Vector OrgUser)
   }
-  deriving (Eq, Ord, Show, GHC.Generic)
+  deriving (Eq, Ord, Show, GHC.Generic, Typeable)
 
 -- | Opaque Organisation identifier
 type OrganisationId = Identifier Integer Organisation
