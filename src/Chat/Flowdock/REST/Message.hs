@@ -2,6 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 -- |
 -- Module      : Chat.Flowdock.REST.Message
 -- License     : BSD3
@@ -60,6 +61,7 @@ import Data.Hashable
 import Data.Monoid
 import Data.Text as T
 import Data.Time
+import Data.Typeable (Typeable)
 import Data.Vector
 import GHC.Generics as GHC
 import Generics.SOP as SOP
@@ -73,7 +75,7 @@ data Comment = Comment
   { _commentText  :: !Text
   , _commentTitle :: !Text
   }
-  deriving (Eq, Ord, Show, GHC.Generic)
+  deriving (Eq, Ord, Show, GHC.Generic, Typeable)
 
 makeLenses ''Comment
 
@@ -96,7 +98,7 @@ data MailAddress = MailAddress
   { _mailAddress     :: !Text
   , _mailAddressName :: !(Maybe Text)
   }
-  deriving (Eq, Ord, Show, GHC.Generic)
+  deriving (Eq, Ord, Show, GHC.Generic, Typeable)
 
 makeLenses ''MailAddress
 
@@ -122,7 +124,7 @@ data Mail = Mail
   , _mailBcc     :: !(Vector MailAddress)
   , _mailReplyTo :: !(Vector MailAddress)
   }
-  deriving (Eq, Ord, Show, GHC.Generic)
+  deriving (Eq, Ord, Show, GHC.Generic, Typeable)
 
 makeLenses ''Mail
 
@@ -155,7 +157,7 @@ data MessageEvent = EventMessage
                   | EventMail
                   | EventActivity
                   | EventDiscussion
-  deriving (Eq, Ord, Show, Enum, Bounded)
+  deriving (Eq, Ord, Show, Enum, Bounded, Typeable)
 
 messageEventToString :: MessageEvent -> String
 messageEventToString EventMessage      = "message"
@@ -188,7 +190,7 @@ data MessageContent = MTMessage !Text
                     | MTMail !Mail
                     | MTActivity -- No action
                     | MTDiscussion
-  deriving (Eq, Show, GHC.Generic)
+  deriving (Eq, Show, GHC.Generic, Typeable)
 
 instance NFData MessageContent
 --instance Hashable MessageContent
@@ -229,7 +231,7 @@ data Message = Message
   , _msgUser       :: !UserId
   , _msgId         :: !MessageId
   }
-  deriving (Eq, Show, GHC.Generic)
+  deriving (Eq, Show, GHC.Generic, Typeable)
 
 -- | Opaque User identifier
 type MessageId = Identifier Integer Message

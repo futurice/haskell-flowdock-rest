@@ -2,6 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 -- |
 -- Module      : Chat.Flowdock.REST.User
 -- License     : BSD3
@@ -20,6 +21,7 @@ import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable
 import Data.Text
+import Data.Typeable (Typeable)
 import GHC.Generics as GHC
 import Generics.SOP as SOP
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
@@ -37,7 +39,7 @@ data User = User
   , _userAvatar'  :: !Text
   , _userWebsite' :: !(Maybe Text)
   }
-  deriving (Eq, Ord, Show, GHC.Generic)
+  deriving (Eq, Ord, Show, GHC.Generic, Typeable)
 
 makeLenses ''User
 

@@ -2,6 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 -- |
 -- Module      : Chat.Flowdock.REST.Flow
 -- License     : BSD3
@@ -29,6 +30,7 @@ import Data.Binary.Tagged
 import Data.Hashable
 import Data.Monoid
 import Data.Text as T
+import Data.Typeable (Typeable)
 import GHC.Generics as GHC
 import Generics.SOP as SOP
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
@@ -39,7 +41,7 @@ import Chat.Flowdock.REST.Organisation
 data FlowAccessMode = FAMInvintation
                     | FAMLink
                     | FAMOrganisation
-  deriving (Eq, Ord, Show, Enum, Bounded, GHC.Generic)
+  deriving (Eq, Ord, Show, Enum, Bounded, GHC.Generic, Typeable)
 
 instance NFData FlowAccessMode
 instance Hashable FlowAccessMode
@@ -69,7 +71,7 @@ data FlowOrg = FlowOrg
   , _foActive    :: !Bool
   , _foUrl       :: !(ApiUrl Organisation)
   }
-  deriving (Eq, Ord, Show, GHC.Generic)
+  deriving (Eq, Ord, Show, GHC.Generic, Typeable)
 
 makeLenses ''FlowOrg
 
@@ -112,7 +114,7 @@ data Flow = Flow
   , _flowWebUrl       :: !Text
   , _flowAccessMode   :: !FlowAccessMode
   }
-  deriving (Eq, Ord, Show, GHC.Generic)
+  deriving (Eq, Ord, Show, GHC.Generic, Typeable)
 
 -- | Opaque Flow identifier
 type FlowId = Identifier String Flow

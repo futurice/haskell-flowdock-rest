@@ -3,6 +3,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 -- |
 -- Module      : Chat.Flowdock.REST.Internal
 -- License     : BSD3
@@ -27,12 +28,13 @@ import Data.Binary.Tagged
 import Data.Hashable
 import Data.Proxy
 import Data.Text
+import Data.Typeable (Typeable)
 import GHC.Generics
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 -- | Opaque URL received from the API.
 newtype ApiUrl res = ApiUrl String
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord, Show, Typeable)
 
 instance NFData (ApiUrl res) where
   rnf (ApiUrl url) = rnf url
@@ -57,7 +59,7 @@ instance HasSemanticVersion (ApiUrl res)
 
 -- | Semi-opaque identifier.
 newtype Identifier a res = Identifier a
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord, Show, Typeable)
 
 instance NFData a => NFData (Identifier a res) where
   rnf (Identifier x) = rnf x
@@ -88,7 +90,7 @@ getIdentifier (Identifier x) = x
 
 -- | Semi-opaque parameterised name, used to construct requests
 newtype ParamName res = ParamName String
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord, Show, Typeable)
 
 mkParamName :: String -> ParamName res
 mkParamName = ParamName
@@ -120,7 +122,7 @@ instance HasSemanticVersion (ParamName res)
 -- Tag
 
 newtype Tag = Tag Text
-  deriving (Eq, Ord, Show, Generic)
+  deriving (Eq, Ord, Show, Generic, Typeable)
 
 getTag :: Tag -> Text
 getTag (Tag tag) = tag
