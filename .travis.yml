@@ -14,6 +14,9 @@ before_install:
   test"; fi
 - if [ "$PEDANTIC" = "YES" ]; then export CABALBUILDOPTS="--ghc-options=-Werror --ghc-options=-Wall";
   fi
+- mkdir -p $HOME/.cabal
+- 'echo "remote-repo: hackage.haskell.org:http://hackage.fpcomplete.com/" > $HOME/.cabal/config'
+- 'echo "remote-repo-cache: $HOME/.cabal/packages" >> $HOME/.cabal/config'
 install:
 - if [ -f $HOME/.cabal/packages/hackage.haskell.org/00-index.tar.gz ]; then zcat $HOME/.cabal/packages/hackage.haskell.org/00-index.tar.gz
   > $HOME/.cabal/packages/hackage.haskell.org/00-index.tar; ls -l $HOME/.cabal/packages/hackage.haskell.org/;
