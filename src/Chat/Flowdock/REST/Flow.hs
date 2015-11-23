@@ -21,7 +21,9 @@ module Chat.Flowdock.REST.Flow (
   FlowOrg(..),
   ) where
 
-import Control.Applicative
+import Prelude ()
+import Prelude.Compat
+
 import Control.DeepSeq
 import Control.Lens
 import Data.Aeson.Compat
