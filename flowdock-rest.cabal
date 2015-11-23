@@ -38,6 +38,7 @@ library
   ghc-options: -Wall
   build-depends:
       base                  >=4.7   && <4.9
+    , base-compat           >=0.6   && <0.9
     , aeson                 >=0.8   && <0.11
     , aeson-extra           >=0.2   && <0.3
     , ansi-pretty           >=0.1   && <0.2
@@ -78,6 +79,7 @@ test-suite flowdock-rest-test
   ghc-options: -Wall
   build-depends:
       base                  >=4.7   && <4.9
+    , base-compat           >=0.6   && <0.9
     , aeson                 >=0.8   && <0.11
     , aeson-extra           >=0.2   && <0.3
     , ansi-pretty           >=0.1   && <0.2
