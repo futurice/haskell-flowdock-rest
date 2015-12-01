@@ -3,4 +3,4 @@ packages:
 - '.'
 extra-deps:
 - ansi-pretty-0.1.0.0
-resolver: lts-3.10
+resolver: lts-3.16
