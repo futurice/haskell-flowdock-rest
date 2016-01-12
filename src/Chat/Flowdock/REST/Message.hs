@@ -51,7 +51,7 @@ module Chat.Flowdock.REST.Message (
   mailAddressName,
   ) where
 
-import Prelude ()
+import Prelude        ()
 import Prelude.Compat
 
 import Control.DeepSeq
