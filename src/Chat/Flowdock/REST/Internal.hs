@@ -18,7 +18,7 @@ module Chat.Flowdock.REST.Internal
   , getTag
   ) where
 
-import Prelude ()
+import Prelude        ()
 import Prelude.Compat
 
 import Control.DeepSeq

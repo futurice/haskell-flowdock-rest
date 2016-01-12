@@ -1,7 +1,8 @@
-flags: {}
+flags:
+  flowdock-rest:
+    aeson-compat: true
 packages:
 - '.'
 extra-deps:
-- ansi-pretty-0.1.0.0
-- aeson-0.10.0.0
-resolver: nightly-2015-10-19
+- ansi-pretty-0.1.1.0
+resolver: nightly-2016-01-08

@@ -37,7 +37,7 @@ module Chat.Flowdock.REST.Request (
   organisationRequest,
   ) where
 
-import Prelude ()
+import Prelude        ()
 import Prelude.Compat
 
 import Control.Lens

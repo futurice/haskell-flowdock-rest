@@ -13,7 +13,7 @@ module Chat.Flowdock.REST.User
   , UserLike(..)
   ) where
 
-import Prelude ()
+import Prelude        ()
 import Prelude.Compat
 
 import Control.DeepSeq
