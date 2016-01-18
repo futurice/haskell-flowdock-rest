@@ -30,25 +30,33 @@ module Chat.Flowdock.REST.Message (
   _MTMessageEdit,
   _MTActivityUser,
   _MTFile,
-  _MTMail,
   _MTActivity,
   _MTDiscussion,
   -- * Comment
   Comment(..),
   commentText,
   commentTitle,
-  -- * Mail
-  Mail(..),
-  mailSubject,
-  mailContent,
-  mailFrom,
-  mailTo,
-  mailCc,
-  mailBcc,
-  mailReplyTo,
-  MailAddress(..),
-  mailAddress,
-  mailAddressName,
+  -- * Discussion
+  Discussion(..),
+  discussionBody,
+  discussionThread,
+  discussionTitle,
+  discussionAuthor,
+  Thread(..),
+  threadSource,
+  threadId,
+  threadTitle,
+  Source(..),
+  sourceId,
+  sourceName,
+  sourceApplication,
+  Author(..),
+  authorName,
+  authorAvatar,
+  authorEmail,
+  Application(..),
+  applicationId,
+  applicationName,
   ) where
 
 import Prelude        ()
@@ -96,58 +104,6 @@ instance FromJSON Comment where
 
 instance AnsiPretty Comment
 
-data MailAddress = MailAddress
-  { _mailAddress     :: !Text
-  , _mailAddressName :: !(Maybe Text)
-  }
-  deriving (Eq, Ord, Show, GHC.Generic, Typeable)
-
-makeLenses ''MailAddress
-
-instance NFData MailAddress
-instance Hashable MailAddress
-instance SOP.Generic MailAddress
-instance SOP.HasDatatypeInfo MailAddress
-instance Binary MailAddress
-
-instance FromJSON MailAddress where
-  parseJSON = withObject "MailAddress" $ \obj ->
-    MailAddress <$> obj .: "address"
-                <*> obj .:? "name"
-
-instance AnsiPretty MailAddress
-
-data Mail = Mail
-  { _mailSubject :: !Text
-  , _mailContent :: !Text
-  , _mailTo      :: !(Vector MailAddress)
-  , _mailFrom    :: !(Vector MailAddress)
-  , _mailCc      :: !(Vector MailAddress)
-  , _mailBcc     :: !(Vector MailAddress)
-  , _mailReplyTo :: !(Vector MailAddress)
-  }
-  deriving (Eq, Ord, Show, GHC.Generic, Typeable)
-
-makeLenses ''Mail
-
-instance NFData Mail
---instance Hashable Mail
-instance SOP.Generic Mail
-instance SOP.HasDatatypeInfo Mail
-instance Binary Mail
-
-instance FromJSON Mail where
-  parseJSON = withObject "Mail" $ \obj ->
-    Mail <$> obj .: "subject"
-         <*> obj .: "content"
-         <*> obj .: "to"
-         <*> obj .: "from"
-         <*> obj .: "cc"
-         <*> obj .: "bcc"
-         <*> obj .: "replyTo"
-
-instance AnsiPretty Mail
-
 data MessageEvent
   = EventMessage
   | EventStatus
@@ -158,9 +114,9 @@ data MessageEvent
   | EventMessageEdit
   | EventActivityUser
   | EventFile
-  | EventMail
   | EventActivity
   | EventDiscussion
+  | EventUserEdit
   deriving (Eq, Ord, Show, Enum, Bounded, Typeable)
 
 messageEventToString :: MessageEvent -> String
@@ -172,9 +128,9 @@ messageEventToString EventTagChange    = "tag-change"
 messageEventToString EventMessageEdit  = "message-edit"
 messageEventToString EventActivityUser = "activity.user"
 messageEventToString EventFile         = "file"
-messageEventToString EventMail         = "mail"
 messageEventToString EventActivity     = "activity"
 messageEventToString EventDiscussion   = "discussion"
+messageEventToString EventUserEdit     = "user-edit"
 
 messageEventLookupTable :: [(String, MessageEvent)]
 messageEventLookupTable = fmap f [minBound..maxBound]
@@ -182,6 +138,127 @@ messageEventLookupTable = fmap f [minBound..maxBound]
 
 messageEventFromString :: String -> Maybe MessageEvent
 messageEventFromString = flip lookup messageEventLookupTable
+
+type ApplicationId = Identifier Integer Application
+
+data Application = Application
+    { _applicationName :: !Text
+    , _applicationId :: !ApplicationId
+    }
+    deriving (Eq, Ord, Show, GHC.Generic, Typeable)
+
+makeLenses ''Application
+
+instance NFData Application
+instance Hashable Application
+instance SOP.Generic Application
+instance SOP.HasDatatypeInfo Application
+instance Binary Application
+instance AnsiPretty Application
+
+instance FromJSON Application where
+    parseJSON = withObject "Application" $ \obj ->
+        Application
+            <$> obj .: "name"
+            <*> obj .: "id"
+
+type SourceId = Identifier Integer Source
+
+data Source = Source
+    { _sourceName :: !Text
+    , _sourceId :: !SourceId
+    , _sourceApplication :: !Application
+    }
+    deriving (Eq, Ord, Show, GHC.Generic, Typeable)
+
+makeLenses ''Source
+
+instance NFData Source
+instance Hashable Source
+instance SOP.Generic Source
+instance SOP.HasDatatypeInfo Source
+instance Binary Source
+instance AnsiPretty Source
+
+instance FromJSON Source where
+    parseJSON = withObject "Source" $ \obj ->
+        Source
+            <$> obj .: "name"
+            <*> obj .: "id"
+            <*> obj .: "application"
+
+type ThreadId = Identifier Text Thread
+
+data Thread = Thread
+    { _threadTitle  :: !Text
+    , _threadId     :: !ThreadId
+    , _threadSource :: !Source
+    }
+    deriving (Eq, Ord, Show, GHC.Generic, Typeable)
+
+makeLenses ''Thread
+
+instance NFData Thread
+instance Hashable Thread
+instance SOP.Generic Thread
+instance SOP.HasDatatypeInfo Thread
+instance Binary Thread
+instance AnsiPretty Thread
+
+instance FromJSON Thread where
+    parseJSON = withObject "Thread" $ \obj ->
+        Thread
+            <$> obj .: "title"
+            <*> obj .: "id"
+            <*> obj .: "source"
+
+data Author = Author
+    { _authorName   :: !(Maybe Text)
+    , _authorEmail  :: !(Maybe Text)
+    , _authorAvatar :: !(Maybe Text)
+    }
+    deriving (Eq, Ord, Show, GHC.Generic, Typeable)
+
+makeLenses ''Author
+
+instance NFData Author
+instance Hashable Author
+instance SOP.Generic Author
+instance SOP.HasDatatypeInfo Author
+instance Binary Author
+instance AnsiPretty Author
+
+instance FromJSON Author where
+    parseJSON = withObject "Author" $ \obj ->
+        Author
+            <$> obj .:? "name"
+            <*> obj .:? "email"
+            <*> obj .:? "avatar"
+
+data Discussion = Discussion
+    { _discussionTitle  :: !Text
+    , _discussionAuthor :: !Author
+    , _discussionThread :: !Thread
+    , _discussionBody   :: !Text
+    }
+    deriving (Eq, Ord, Show, GHC.Generic, Typeable)
+
+makeLenses ''Discussion
+
+instance NFData Discussion
+instance Hashable Discussion
+instance SOP.Generic Discussion
+instance SOP.HasDatatypeInfo Discussion
+instance Binary Discussion
+instance AnsiPretty Discussion
+
+instance FromJSON Discussion where
+    parseJSON = withObject "Discussion" $ \obj ->
+        Discussion
+            <$> obj .: "title"
+            <*> obj .: "author"
+            <*> obj .: "thread"
+            <*> obj .: "full_body"
 
 data MessageContent
   = MTMessage !Text
@@ -193,9 +270,9 @@ data MessageContent
   | MTMessageEdit !Value
   | MTActivityUser !Value
   | MTFile !Value
-  | MTMail !Mail
   | MTActivity -- No action
-  | MTDiscussion
+  | MTDiscussion !Discussion
+  | MTLine !Value -- ^ what?
   deriving (Eq, Show, GHC.Generic, Typeable)
 
 instance NFData MessageContent
@@ -211,21 +288,22 @@ instance FromJSON MessageContent where
     event <- obj .: "event"
     content <- obj .: "content"
     case event of
-      "message"    -> MTMessage    <$> parseJSON content
-      "comment"    -> MTComment    <$> parseJSON content
-      "status"     -> MTStatus     <$> parseJSON content
-      "action"     -> MTAction     <$> parseJSON content
-      "file"       -> MTFile       <$> parseJSON content
-      "mail"       -> MTMail       <$> parseJSON content
+      "message"    -> MTMessage     <$> parseJSON content
+      "comment"    -> MTComment     <$> parseJSON content
+      "status"     -> MTStatus      <$> parseJSON content
+      "action"     -> MTAction      <$> parseJSON content
+      "file"       -> MTFile        <$> parseJSON content
+      "user-edit"  -> MTMessageEdit <$> parseJSON content
+      "line"       -> MTLine        <$> parseJSON content
       "activity"   -> pure MTActivity
-      "discussion" -> pure MTDiscussion
+      "discussion" -> MTDiscussion  <$> parseJSON (Object obj)
       _          -> fail $ "Invalid message type: " <> event
 
 
 instance AnsiPretty MessageContent where
-  ansiPretty (MTMessage msg) = text "message:" <+> ansiPretty msg
-  ansiPretty (MTComment com) = ansiPretty com
-  ansiPretty (MTMail mail)   = ansiPretty mail
+  ansiPretty (MTMessage msg)      = text "message:" <+> ansiPretty msg
+  ansiPretty (MTComment com)      = ansiPretty com
+  ansiPretty (MTDiscussion disc)  = ansiPretty disc
   ansiPretty m = text . show $ m
 
 data Message = Message
