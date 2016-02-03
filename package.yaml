@@ -18,11 +18,15 @@ extra-source-files:
 
 ghc-options: -Wall
 
+flags:
+  aeson-compat:
+    manual: false
+    default: true
+
 dependencies:
   - base                  >=4.7   && <4.9
-  - base-compat           >=0.6   && <0.9
+  - base-compat           >=0.6   && <0.10
   - aeson                 >=0.8   && <0.11
-  - aeson-extra           >=0.2   && <0.3
   - ansi-pretty           >=0.1   && <0.2
   - binary-orphans        >=0.1.1 && <0.2
   - binary-tagged         >=0.1.1 && <0.2
@@ -39,6 +43,14 @@ dependencies:
   - transformers          >=0.3   && <0.5
   - text                  >=1.2   && <1.3
   - vector                >=0.10  && <0.12
+
+when:
+  - condition: flag(aeson-compat)
+    dependencies:
+     - aeson-compat           >=0.3   && <0.4
+  - condition: "!flag(aeson-compat)"
+    dependencies:
+     - aeson-extra           >=0.2   && <0.3
 
 library:
   source-dirs: src
