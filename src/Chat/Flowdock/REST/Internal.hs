@@ -60,7 +60,7 @@ instance HasSemanticVersion (ApiUrl res)
 
 -- | Semi-opaque identifier.
 newtype Identifier a res = Identifier a
-  deriving (Eq, Ord, Show, Typeable)
+  deriving (Eq, Ord, Read, Show, Typeable)
 
 instance NFData a => NFData (Identifier a res) where
   rnf (Identifier x) = rnf x
