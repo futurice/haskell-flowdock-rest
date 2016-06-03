@@ -62,6 +62,7 @@ module Chat.Flowdock.REST.Message (
 import Prelude        ()
 import Prelude.Compat
 
+import Control.Applicative                     (optional, (<|>))
 import Control.DeepSeq
 import Control.Lens
 import Data.Aeson.Compat
@@ -71,6 +72,7 @@ import Data.Hashable
 import Data.Monoid
 import Data.Text                               as T
 import Data.Time
+import Data.Time.Clock.POSIX                   (posixSecondsToUTCTime)
 import Data.Typeable                           (Typeable)
 import Data.Vector
 import Generics.SOP                            as SOP
@@ -143,7 +145,7 @@ type ApplicationId = Identifier Integer Application
 
 data Application = Application
     { _applicationName :: !Text
-    , _applicationId :: !ApplicationId
+    , _applicationId   :: !ApplicationId
     }
     deriving (Eq, Ord, Show, GHC.Generic, Typeable)
 
@@ -165,8 +167,8 @@ instance FromJSON Application where
 type SourceId = Identifier Integer Source
 
 data Source = Source
-    { _sourceName :: !Text
-    , _sourceId :: !SourceId
+    { _sourceName        :: !Text
+    , _sourceId          :: !SourceId
     , _sourceApplication :: !Application
     }
     deriving (Eq, Ord, Show, GHC.Generic, Typeable)
@@ -271,7 +273,7 @@ data MessageContent
   | MTActivityUser !Value
   | MTFile !Value
   | MTActivity -- No action
-  | MTDiscussion !Discussion
+  | MTDiscussion !(Maybe Discussion)
   | MTLine !Value -- ^ what?
   deriving (Eq, Show, GHC.Generic, Typeable)
 
@@ -296,7 +298,7 @@ instance FromJSON MessageContent where
       "user-edit"  -> MTMessageEdit <$> parseJSON content
       "line"       -> MTLine        <$> parseJSON content
       "activity"   -> pure MTActivity
-      "discussion" -> MTDiscussion  <$> parseJSON (Object obj)
+      "discussion" -> MTDiscussion  <$> optional (parseJSON (Object obj))
       _          -> fail $ "Invalid message type: " <> event
 
 
@@ -334,7 +336,7 @@ instance FromJSON Message where
     flip (withObject "Message") v $ \obj ->
       Message <$> pure content
               <*> obj .: "tags"
-              <*> obj .: "created_at"
+              <*> (obj .: "created_at" <|> posixSecondsToUTCTime<$> obj .: "sent")
               <*> obj .:? "edited_at"
               <*> obj .: "flow"
               -- User field is string,
