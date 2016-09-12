@@ -1,12 +1,23 @@
-flags:
-  flowdock-rest:
-    aeson-compat: false
+resolver: lts-2.22
 packages:
 - '.'
 extra-deps:
-- file-embed-0.0.9
+- aeson-compat-0.3.5.2
+- ansi-pretty-0.1.1.0
+- base-compat-0.9.1
+- base-orphans-0.5.4
+- bifunctors-5.2
 - binary-orphans-0.1.1.0
 - binary-tagged-0.1.1.0
-- ansi-pretty-0.1.1.0
-- aeson-extra-0.2.3.0
-resolver: lts-2.22
+- file-embed-0.0.9
+- free-4.12.4
+- http-client-0.4.31.1
+- kan-extensions-5.0.1
+- lens-4.14
+- primitive-0.6.1.0
+- profunctors-5.2
+- reflection-2.1.2
+- semigroupoids-5.0.1
+- vector-0.11.0.0
+- vector-binary-instances-0.2.3.2
+flags: {}

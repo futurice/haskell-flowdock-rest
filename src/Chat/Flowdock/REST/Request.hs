@@ -64,7 +64,7 @@ import Chat.Flowdock.REST.URLs
 --
 -- Since this function uses 'MonadThrow', the return monad can be anything that is an instance of 'MonadThrow', such as 'IO' or 'Maybe'.
 parseApiUrl :: MonadThrow m => ApiUrl a -> m (Tagged a Request)
-parseApiUrl (ApiUrl url) = Tagged `liftM` parseUrl url
+parseApiUrl (ApiUrl url) = Tagged `liftM` parseUrlThrow url
 
 data Sorting = Descending | Ascending
   deriving (Eq, Ord, Read, Show, Enum, Bounded)
