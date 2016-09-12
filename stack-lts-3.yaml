@@ -1,8 +1,14 @@
-flags:
-  flowdock-rest:
-    aeson-compat: false
+resolver: lts-3.21
 packages:
 - '.'
 extra-deps:
+- aeson-compat-0.3.5.2
 - ansi-pretty-0.1.1.0
-resolver: lts-3.21
+- base-compat-0.9.1
+- base-orphans-0.5.4
+- bifunctors-5.2
+- http-client-0.4.31.1
+- semigroupoids-5.0.1
+- vector-0.11.0.0
+- vector-binary-instances-0.2.3.2
+flags: {}
