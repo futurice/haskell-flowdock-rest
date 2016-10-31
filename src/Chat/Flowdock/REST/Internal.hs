@@ -18,7 +18,7 @@ module Chat.Flowdock.REST.Internal
   , getTag
   ) where
 
-import Prelude        ()
+import Prelude ()
 import Prelude.Compat
 
 import Control.DeepSeq
@@ -30,7 +30,10 @@ import Data.Proxy
 import Data.Text
 import Data.Typeable                           (Typeable)
 import GHC.Generics
+import Lucid                                   (ToHtml (..))
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
+
+import qualified Data.Csv as Csv
 
 -- | Opaque URL received from the API.
 newtype ApiUrl res = ApiUrl String
@@ -81,8 +84,18 @@ instance HasSemanticVersion (Identifier a res)
 instance FromJSON a => FromJSON (Identifier a res) where
   parseJSON v = Identifier <$> parseJSON v
 
+instance ToJSON a => ToJSON (Identifier a res) where
+    toJSON = toJSON . getIdentifier
+
 instance AnsiPretty a => AnsiPretty (Identifier a res) where
   ansiPretty (Identifier a) = ansiPretty a
+
+instance Show a => ToHtml (Identifier a res) where
+    toHtmlRaw = toHtml
+    toHtml = toHtml . show . getIdentifier
+
+instance Csv.ToField a => Csv.ToField (Identifier a res) where
+    toField = Csv.toField . getIdentifier
 
 mkIdentifier :: a -> Identifier a res
 mkIdentifier = Identifier
