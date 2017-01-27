@@ -18,14 +18,18 @@ module Chat.Flowdock.REST.Request (
   messagesRequest,
   -- ** Options
   MessageOptions,
-  defMessageOptions,
+  defaultMessageOptions,
   msgOptEvents,
   msgOptLimit,
   msgOptUntilId,
   msgOptSinceId,
+  msgOptTags,
+  msgOptTagMode,
   msgOptSorting,
   Sorting(..),
   sortingToString,
+  TagMode(..),
+  tagModeToString,
   -- * Users
   -- | See <https://www.flowdock.com/api/users>
   usersRequest,
@@ -35,6 +39,8 @@ module Chat.Flowdock.REST.Request (
   -- | See <https://www.flowdock.com/api/organizations>
   organisationsRequest,
   organisationRequest,
+  -- * Deprecated
+  defMessageOptions,
   ) where
 
 import Prelude        ()
@@ -43,12 +49,14 @@ import Prelude.Compat
 import Control.Lens
 import Control.Monad
 import Control.Monad.Catch
-import Data.Maybe
-import Data.List as L
+import Data.Maybe (mapMaybe)
 import Data.List.NonEmpty
 import Data.String
 import Data.Tagged
 import Network.HTTP.Client
+
+import qualified Data.List as L
+import qualified Data.Text as T
 
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.User
@@ -73,17 +81,34 @@ sortingToString :: Sorting -> String
 sortingToString Descending = "desc"
 sortingToString Ascending = "asc"
 
+data TagMode
+  = TagModeAnd
+  | TagModeOr
+  deriving (Eq, Ord, Show, Read, Enum, Bounded)
+
+tagModeToString :: TagMode -> String
+tagModeToString TagModeAnd = "and"
+tagModeToString TagModeOr  = "or"
+
+-- | See <https://www.flowdock.com/api/messages>
 data MessageOptions = MessageOptions
-  { _msgOptEvents :: [MessageEvent]
-  , _msgOptLimit :: Maybe Int
+  { _msgOptEvents  :: [MessageEvent]
+  , _msgOptLimit   :: Maybe Int
   , _msgOptUntilId :: Maybe MessageId
   , _msgOptSinceId :: Maybe MessageId
+  , _msgOptTags    :: [Tag]
+  , _msgOptTagMode :: TagMode
   , _msgOptSorting :: Sorting
   }
   deriving (Eq, Ord, Show)
 
+
+defaultMessageOptions :: MessageOptions
+defaultMessageOptions = MessageOptions [] Nothing Nothing Nothing [] TagModeAnd Descending
+
 defMessageOptions :: MessageOptions
-defMessageOptions = MessageOptions [] Nothing Nothing Nothing Descending
+defMessageOptions = defaultMessageOptions
+{-# DEPRECATED defMessageOptions "use defaultMessageOptions" #-}
 
 makeLenses ''MessageOptions
 
@@ -91,12 +116,23 @@ messagesRequest :: MonadThrow m => ParamName Organisation -> ParamName Flow -> M
 messagesRequest org flow MessageOptions {..} = do
   req <- parseApiUrl (messagesUrl org flow)
   return $ setQueryString queryString <$> req
-  where queryString = catMaybes [ (\es -> ("event",    Just $ fromString $ L.intercalate "," $ toList $ fmap messageEventToString es)) <$> nonEmpty _msgOptEvents
-                                , (\l  -> ("limit",    Just $ fromString $ show l))                 <$> _msgOptLimit
-                                , (\u  -> ("until_id", Just $ fromString $ show $ getIdentifier u)) <$> _msgOptUntilId
-                                , (\s  -> ("since_id", Just $ fromString $ show $ getIdentifier s)) <$> _msgOptSinceId
-                                , Just ("sort", Just $ fromString $ sortingToString _msgOptSorting)
-                                ]
+  where
+    queryString = mapMaybe (fmap mk)
+      [ (\es -> ("event",    L.intercalate "," $ toList $ fmap messageEventToString es)) <$> nonEmpty _msgOptEvents
+      , (\l  -> ("limit",    show l))                 <$> _msgOptLimit
+      , (\u  -> ("until_id", show $ getIdentifier u)) <$> _msgOptUntilId
+      , (\s  -> ("since_id", show $ getIdentifier s)) <$> _msgOptSinceId
+      , Just ("sort", sortingToString _msgOptSorting)
+      , ("tag_mode", tagModeToString _msgOptTagMode) <$ tagsParam
+      , (\ts -> ("tags", ts)) <$> tagsParam
+      ]
+
+    tagsParam :: Maybe String
+    tagsParam
+      | null _msgOptTags = Nothing
+      | otherwise = Just $ T.unpack $ T.intercalate "," $ getTag <$> _msgOptTags
+
+    mk (k, v) = (k, Just $ fromString v)
 
 -- Flows
 
