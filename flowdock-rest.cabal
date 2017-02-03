@@ -39,7 +39,7 @@ library
   build-depends:
       base                  >=4.7   && <4.10
     , base-compat           >=0.6   && <0.10
-    , aeson                 >=0.8   && <1.1
+    , aeson                 >=0.8   && <1.2
     , aeson-compat          >=0.3.4.0 && <0.4
     , ansi-pretty           >=0.1   && <0.2
     , binary-orphans        >=0.1.1 && <0.2
@@ -82,7 +82,7 @@ test-suite flowdock-rest-test
   build-depends:
       base                  >=4.7   && <4.10
     , base-compat           >=0.6   && <0.10
-    , aeson                 >=0.8   && <1.1
+    , aeson                 >=0.8   && <1.2
     , aeson-compat          >=0.3.4.0 && <0.4
     , ansi-pretty           >=0.1   && <0.2
     , binary-orphans        >=0.1.1 && <0.2
