@@ -1,4 +1,4 @@
--- This file has been generated from package.yaml by hpack version 0.14.1.
+-- This file has been generated from package.yaml by hpack version 0.17.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -58,7 +58,7 @@ library
     , time                  >=1.4   && <1.7
     , transformers          >=0.3   && <0.6
     , text                  >=1.2   && <1.3
-    , vector                >=0.10  && <0.12
+    , vector                >=0.10  && <0.13
   exposed-modules:
       Chat.Flowdock.REST
       Chat.Flowdock.REST.Auth
@@ -101,7 +101,7 @@ test-suite flowdock-rest-test
     , time                  >=1.4   && <1.7
     , transformers          >=0.3   && <0.6
     , text                  >=1.2   && <1.3
-    , vector                >=0.10  && <0.12
+    , vector                >=0.10  && <0.13
     , flowdock-rest
     , tasty                 >=0.10  && <0.12
     , tasty-quickcheck      >=0.8   && <0.9
