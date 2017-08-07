@@ -27,13 +27,16 @@ import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable
 import Data.Proxy
+import Data.String                             (fromString)
 import Data.Text
-import Data.Typeable                           (Typeable)
+import Data.Typeable                           (Typeable, typeRep)
 import GHC.Generics
 import Lucid                                   (ToHtml (..))
+import Test.QuickCheck                         (Arbitrary (..))
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
-import qualified Data.Csv as Csv
+import qualified Data.Csv     as Csv
+import qualified Data.Swagger as Swagger
 
 -- | Opaque URL received from the API.
 newtype ApiUrl res = ApiUrl String
@@ -96,6 +99,15 @@ instance Show a => ToHtml (Identifier a res) where
 
 instance Csv.ToField a => Csv.ToField (Identifier a res) where
     toField = Csv.toField . getIdentifier
+
+instance Arbitrary a =>  Arbitrary (Identifier a res) where
+    arbitrary = Identifier <$> arbitrary
+
+instance (Swagger.ToSchema a, Typeable res) => Swagger.ToSchema (Identifier a res) where
+    declareNamedSchema _ = do
+        Swagger.NamedSchema _ s <- Swagger.declareNamedSchema (Proxy :: Proxy a)
+        let name = "Identifier " ++ show (typeRep (Proxy :: Proxy res))
+        pure $ Swagger.NamedSchema (Just $ fromString name) s
 
 mkIdentifier :: a -> Identifier a res
 mkIdentifier = Identifier

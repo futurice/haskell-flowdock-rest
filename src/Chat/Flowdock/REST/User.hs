@@ -1,8 +1,8 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric      #-}
+{-# LANGUAGE OverloadedStrings  #-}
+{-# LANGUAGE RecordWildCards    #-}
+{-# LANGUAGE TemplateHaskell    #-}
 -- |
 -- Module      : Chat.Flowdock.REST.User
 -- License     : BSD3
@@ -13,7 +13,7 @@ module Chat.Flowdock.REST.User
   , UserLike(..)
   ) where
 
-import Prelude        ()
+import Prelude ()
 import Prelude.Compat
 
 import Control.DeepSeq
@@ -23,15 +23,16 @@ import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable
 import Data.Text
-import Data.Typeable (Typeable)
-import GHC.Generics as GHC
-import Generics.SOP as SOP
+import Data.Typeable                           (Typeable)
+import Data.Word                               (Word64)
+import Generics.SOP                            as SOP
+import GHC.Generics                            as GHC
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
 import Chat.Flowdock.REST.Internal
 
 -- | Opaque User identifier
-type UserId = Identifier Integer User
+type UserId = Identifier Word64 User
 
 data User = User
   { _userId'      :: !UserId
