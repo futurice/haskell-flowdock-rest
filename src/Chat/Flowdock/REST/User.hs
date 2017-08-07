@@ -24,7 +24,6 @@ import Data.Binary.Tagged
 import Data.Hashable
 import Data.Text
 import Data.Typeable                           (Typeable)
-import Data.Word                               (Word64)
 import Generics.SOP                            as SOP
 import GHC.Generics                            as GHC
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
