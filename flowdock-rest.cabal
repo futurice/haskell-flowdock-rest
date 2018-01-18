@@ -101,7 +101,7 @@ test-suite flowdock-rest-test
     , text
     , vector
     , flowdock-rest
-    , tasty                 >=0.10  && <0.13
+    , tasty                 >=0.10  && <1.1
     , tasty-quickcheck      >=0.8   && <0.10
     , file-embed            >=0.0.9
   default-language: Haskell2010
