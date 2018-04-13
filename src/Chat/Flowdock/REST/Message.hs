@@ -69,7 +69,6 @@ import Data.Aeson.Compat
 import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable
-import Data.Monoid
 import Data.Text                               as T
 import Data.Time
 import Data.Time.Clock.POSIX                   (posixSecondsToUTCTime)
