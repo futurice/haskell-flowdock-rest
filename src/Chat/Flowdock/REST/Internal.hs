@@ -106,6 +106,9 @@ instance Csv.ToField a => Csv.ToField (Identifier a res) where
 instance Arbitrary a =>  Arbitrary (Identifier a res) where
     arbitrary = Identifier <$> arbitrary
 
+instance Swagger.ToParamSchema a => Swagger.ToParamSchema (Identifier a res) where
+    toParamSchema _ = Swagger.toParamSchema (Proxy :: Proxy a )
+
 instance (Swagger.ToSchema a, Typeable res) => Swagger.ToSchema (Identifier a res) where
     declareNamedSchema _ = do
         Swagger.NamedSchema _ s <- Swagger.declareNamedSchema (Proxy :: Proxy a)
