@@ -35,8 +35,11 @@ import Lucid                                   (ToHtml (..))
 import Test.QuickCheck                         (Arbitrary (..))
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 
-import qualified Data.Csv     as Csv
-import qualified Data.Swagger as Swagger
+import qualified Data.Csv                             as Csv
+import qualified Data.Swagger                         as Swagger
+import qualified Database.PostgreSQL.Simple.FromField as PQ
+import qualified Database.PostgreSQL.Simple.ToField   as PQ
+import qualified Web.HttpApiData                      as Web
 
 -- | Opaque URL received from the API.
 newtype ApiUrl res = ApiUrl String
@@ -108,6 +111,18 @@ instance (Swagger.ToSchema a, Typeable res) => Swagger.ToSchema (Identifier a re
         Swagger.NamedSchema _ s <- Swagger.declareNamedSchema (Proxy :: Proxy a)
         let name = "Identifier " ++ show (typeRep (Proxy :: Proxy res))
         pure $ Swagger.NamedSchema (Just $ fromString name) s
+
+instance Web.ToHttpApiData a => Web.ToHttpApiData (Identifier a res) where
+    toQueryParam = Web.toQueryParam . getIdentifier
+
+instance Web.FromHttpApiData a => Web.FromHttpApiData (Identifier a res) where
+    parseQueryParam = fmap Identifier . Web.parseQueryParam
+
+instance PQ.ToField a => PQ.ToField (Identifier a res) where
+    toField = PQ.toField .  getIdentifier
+
+instance PQ.FromField a => PQ.FromField (Identifier a res) where
+    fromField a b = Identifier <$> PQ.fromField a b
 
 mkIdentifier :: a -> Identifier a res
 mkIdentifier = Identifier
