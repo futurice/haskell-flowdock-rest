@@ -76,7 +76,6 @@ instance UserLike OrgUser where
   userAvatar = ouAvatar
   userWebsite = ouWebsite
 
-
 data Organisation = Organisation
   { _orgId'        :: !OrganisationId
   , _orgParamName' :: !(ParamName Organisation)
