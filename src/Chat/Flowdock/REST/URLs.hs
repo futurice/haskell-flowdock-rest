@@ -22,8 +22,10 @@ module Chat.Flowdock.REST.URLs (
   organisationUrl,
   ) where
 
-import Data.List
-import Data.Monoid
+import Prelude ()
+import Prelude.Compat
+
+import Data.List (intercalate)
 
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.User
