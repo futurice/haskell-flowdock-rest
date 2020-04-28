@@ -59,9 +59,6 @@ module Chat.Flowdock.REST.Message (
   applicationName,
   ) where
 
-import Prelude        ()
-import Prelude.Compat
-
 import Control.Applicative                     (optional, (<|>))
 import Control.DeepSeq
 import Control.Lens
@@ -73,7 +70,6 @@ import Data.Text                               as T
 import Data.Time
 import Data.Time.Clock.POSIX                   (posixSecondsToUTCTime)
 import Data.Typeable                           (Typeable)
-import Data.Vector
 import Generics.SOP                            as SOP
 import GHC.Generics                            as GHC
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
@@ -81,6 +77,8 @@ import Text.PrettyPrint.ANSI.Leijen.AnsiPretty
 import Chat.Flowdock.REST.Flow
 import Chat.Flowdock.REST.Internal
 import Chat.Flowdock.REST.User
+
+import qualified Data.Vector as V
 
 data Comment = Comment
   { _commentText  :: !Text
@@ -298,7 +296,7 @@ instance FromJSON MessageContent where
       "line"       -> MTLine        <$> parseJSON content
       "activity"   -> pure MTActivity
       "discussion" -> MTDiscussion  <$> optional (parseJSON (Object obj))
-      _          -> fail $ "Invalid message type: " <> event
+      _          -> fail $ "Invalid message type: " ++ event
 
 
 instance AnsiPretty MessageContent where
@@ -309,7 +307,7 @@ instance AnsiPretty MessageContent where
 
 data Message = Message
   { _msgContent   :: !MessageContent
-  , _msgTags      :: !(Vector Tag)
+  , _msgTags      :: !(V.Vector Tag)
   , _msgCreatedAt :: !UTCTime
   , _msgEditedAt  :: !(Maybe UTCTime)
   , _msgFlowId    :: !FlowId

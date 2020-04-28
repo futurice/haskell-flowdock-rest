@@ -22,9 +22,6 @@ module Chat.Flowdock.REST.URLs (
   organisationUrl,
   ) where
 
-import Prelude ()
-import Prelude.Compat
-
 import Data.List (intercalate)
 
 import Chat.Flowdock.REST.Internal
@@ -37,7 +34,7 @@ apiBaseUrl :: String
 apiBaseUrl = "https://api.flowdock.com"
 
 mkUrl :: [String] -> ApiUrl a
-mkUrl parts = ApiUrl $ apiBaseUrl <> "/" <> intercalate "/" parts
+mkUrl parts = ApiUrl $ apiBaseUrl ++ "/" ++ intercalate "/" parts
 
 flowsUrl :: ApiUrl [Flow]
 flowsUrl = mkUrl ["flows"]

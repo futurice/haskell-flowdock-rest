@@ -16,9 +16,6 @@ module Chat.Flowdock.REST.Organisation (
   ouAdmin,
   ) where
 
-import Prelude        ()
-import Prelude.Compat
-
 import Control.DeepSeq
 import Control.Lens
 import Data.Aeson.Compat

@@ -21,9 +21,6 @@ module Chat.Flowdock.REST.Flow (
   FlowOrg(..),
   ) where
 
-import Prelude        ()
-import Prelude.Compat
-
 import Control.DeepSeq
 import Control.Lens
 import Data.Aeson.Compat
@@ -55,7 +52,7 @@ instance FromJSON FlowAccessMode where
     where p "invitation"    = pure FAMInvintation
           p "link"          = pure FAMLink
           p "organization"  = pure FAMOrganisation
-          p x               = fail $ "Invalid flow access mode: " <> T.unpack x
+          p x               = fail $ "Invalid flow access mode: " ++ T.unpack x
 
 
 instance AnsiPretty FlowAccessMode where

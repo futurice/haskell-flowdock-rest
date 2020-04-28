@@ -43,9 +43,6 @@ module Chat.Flowdock.REST.Request (
   defMessageOptions,
   ) where
 
-import Prelude        ()
-import Prelude.Compat
-
 import Control.Lens
 import Control.Monad
 import Control.Monad.Catch
