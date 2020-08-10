@@ -16,11 +16,13 @@ module Chat.Flowdock.REST.User
 import Control.DeepSeq
 import Control.Lens
 import Data.Aeson.Compat
+import Data.Binary
 import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable
 import Data.Text
 import Data.Typeable                           (Typeable)
+import Data.Word (Word64)
 import Generics.SOP                            as SOP
 import GHC.Generics                            as GHC
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty

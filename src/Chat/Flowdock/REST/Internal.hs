@@ -20,8 +20,10 @@ module Chat.Flowdock.REST.Internal
 
 import Control.DeepSeq
 import Data.Aeson.Compat
+import Data.Binary
 import Data.Binary.Orphans
 import Data.Binary.Tagged
+import Data.Binary.Instances
 import Data.Hashable
 import Data.Proxy
 import Data.String                             (fromString)

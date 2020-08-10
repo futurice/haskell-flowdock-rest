@@ -19,6 +19,7 @@ module Chat.Flowdock.REST.Organisation (
 import Control.DeepSeq
 import Control.Lens
 import Data.Aeson.Compat
+import Data.Binary
 import Data.Binary.Orphans
 import Data.Binary.Tagged
 import Data.Hashable
